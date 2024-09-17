@@ -1,3 +1,5 @@
 venv/
 
 embeddings.npz
+
+__pycache__/
