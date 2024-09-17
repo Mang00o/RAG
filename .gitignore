@@ -4,4 +4,4 @@ embeddings.npz
 
 __pycache__/
 
-documents/*
+documents/*.pdf
