@@ -9,12 +9,13 @@ Il progetto utilizza le seguenti tecnologie:
 - **Python**: Linguaggio principale per l'implementazione.
 - **Ollama**: Utilizzato per la gestione e l'interazione con i modelli locali.
 
-## Documentazione
+## Evoluzione
 
-Ecco due link utili per approfondire la documentazione:
+Ecco link utili per approfondire future evoluzioni:
 
 - [Python/Flash on DDEV](https://ddev.readthedocs.io/en/stable/users/quickstart/#pythonflask-experimental)
 - [TryChroma](https://www.trychroma.com/)
+- [LangChain](https://js.langchain.com/v0.1/docs/modules/data_connection/)
 
 ## Installazione
 
