@@ -4,20 +4,16 @@ import faiss
 import numpy as np
 from transformers import AutoTokenizer, AutoModel
 import torch
-import warnings
+
 import subprocess
 
 from prittier import frame_text
+from warning import manage_warning
 
 def main():
     frame_text('Inizio dello Script')
 
-    # Suppress only the specific FutureWarning related to clean_up_tokenization_spaces
-    warnings.filterwarnings(
-        "ignore", 
-        category=FutureWarning, 
-        message=r"`clean_up_tokenization_spaces` was not set"
-    )
+    manage_warning()
 
     # Passo 1: Estrai il testo dai PDF
     def extract_text_from_pdfs(directory):
