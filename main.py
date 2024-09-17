@@ -7,10 +7,10 @@ import torch
 import warnings
 import subprocess
 
+from prittier import frame_text
+
 def main():
-    print("\n***************************")
-    print("*   Inizio dello Script   *")
-    print("***************************")
+    frame_text('Inizio dello Script')
 
     # Suppress only the specific FutureWarning related to clean_up_tokenization_spaces
     warnings.filterwarnings(
