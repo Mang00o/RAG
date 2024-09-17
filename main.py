@@ -56,3 +56,23 @@ index = faiss.IndexFlatL2(document_embeddings.shape[1])
 index.add(document_embeddings)
 
 print("Documenti indicizzati con successo!")
+
+# Funzione per cercare documenti rilevanti in base a una query
+def search_documents(query, k=1):
+    # Genera l'embedding della query
+    query_embedding = embed_documents([query])
+    
+    # Cerca nell'indice FAISS i documenti più vicini
+    distances, indices = index.search(query_embedding, k)
+    
+    # Recupera i documenti più rilevanti e le loro distanze
+    results = [(pdf_filenames[i], distances[0][idx]) for idx, i in enumerate(indices[0])]
+    return results
+
+# Esegui una query per cercare documenti rilevanti
+query = "perizia"  # Puoi modificare questa query in base a quello che cerchi
+result = search_documents(query, k=3)  # 'k' indica il numero di documenti da recuperare
+
+# Stampa i documenti trovati con le loro distanze
+for doc, distance in result:
+    print(f"Documento: {doc}, Distanza: {distance}")
