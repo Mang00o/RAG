@@ -5,6 +5,7 @@ import numpy as np
 from transformers import AutoTokenizer, AutoModel
 import torch
 import warnings
+import subprocess
 
 print("\n***************************")
 print("*   Inizio dello Script   *")
@@ -74,8 +75,8 @@ def search_documents(query, k=1):
     return results
 
 # Esegui una query per cercare documenti rilevanti
-query = "relazione di perizia"  # Puoi modificare questa query in base a quello che cerchi
-result = search_documents(query, k=3)  # 'k' indica il numero di documenti da recuperare
+query = input("\n-> Inserisci la query per cercare documenti rilevanti: ")
+result = search_documents(query, k=5)  # 'k' indica il numero di documenti da recuperare
 
 # Stampa i documenti trovati con le loro distanze
 print("\n-> Documenti più rilevanti trovati:")
@@ -83,6 +84,29 @@ print("\tDocumento                                | Distanza")
 print("\t-----------------------------------------|-----------")
 for doc, distance in result:
     print(f"\t{doc:<40} | {distance:.4f}")
+
+# Funzione per inviare la query e i documenti a Ollama dentro WSL
+def generate_response_with_ollama(query, documents):
+    # Costruisci il prompt da inviare a Ollama
+    docs_text = " ".join([pdf_texts[pdf_filenames.index(doc)] for doc, _ in documents])[:1000]  # Prendi solo i primi 1000 caratteri
+    
+    # Costruisci il prompt per Ollama
+    prompt = f"Domanda: {query}\n\nDocumenti:\n{docs_text}"
+    
+    # Esegui il comando `ollama run codellama` dentro WSL con encoding UTF-8
+    process = subprocess.Popen(['wsl', 'ollama', 'run', 'codellama'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, encoding='utf-8', errors='replace')
+    
+    # Invia il prompt e ottieni la risposta
+    stdout, stderr = process.communicate(input=prompt)
+    
+    if stderr:
+        print(f"Errore: {stderr}")
+    
+    return stdout.strip()  # Restituisce la risposta di Ollama
+
+# Genera la risposta con Ollama basata sui documenti trovati
+response = generate_response_with_ollama(query, result)
+print("\n-> Risposta generata da Ollama:\n", response)
 
 # Stampa fine script
 print("\n***************************")
