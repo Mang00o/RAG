@@ -6,6 +6,10 @@ from transformers import AutoTokenizer, AutoModel
 import torch
 import warnings
 
+print("\n***************************")
+print("*   Inizio dello Script   *")
+print("***************************")
+
 # Suppress only the specific FutureWarning related to clean_up_tokenization_spaces
 warnings.filterwarnings(
     "ignore", 
@@ -32,9 +36,9 @@ def extract_text_from_pdfs(directory):
 pdf_texts, pdf_filenames = extract_text_from_pdfs("documents")
 
 # Stampa i nomi dei file caricati
-print("Documenti caricati:")
+print("\n-> Documenti caricati:")
 for filename in pdf_filenames:
-    print(filename)
+    print("\t- " + filename)
 
 # Passo 2: Indicare i documenti con FAISS
 # Carica il modello di embedding
@@ -55,7 +59,7 @@ document_embeddings = embed_documents(pdf_texts)
 index = faiss.IndexFlatL2(document_embeddings.shape[1])
 index.add(document_embeddings)
 
-print("Documenti indicizzati con successo!")
+print("\n-> Documenti indicizzati con successo!")
 
 # Funzione per cercare documenti rilevanti in base a una query
 def search_documents(query, k=1):
@@ -70,9 +74,17 @@ def search_documents(query, k=1):
     return results
 
 # Esegui una query per cercare documenti rilevanti
-query = "perizia"  # Puoi modificare questa query in base a quello che cerchi
+query = "relazione di perizia"  # Puoi modificare questa query in base a quello che cerchi
 result = search_documents(query, k=3)  # 'k' indica il numero di documenti da recuperare
 
 # Stampa i documenti trovati con le loro distanze
+print("\n-> Documenti più rilevanti trovati:")
+print("\tDocumento                                | Distanza")
+print("\t-----------------------------------------|-----------")
 for doc, distance in result:
-    print(f"Documento: {doc}, Distanza: {distance}")
+    print(f"\t{doc:<40} | {distance:.4f}")
+
+# Stampa fine script
+print("\n***************************")
+print("*     Fine dello Script    *")
+print("***************************\n")
