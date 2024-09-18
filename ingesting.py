@@ -1,13 +1,13 @@
 import os
 import PyPDF2
 
-class Retriving:
+class Ingesting:
     def __init__(self, directory):
         self.directory = directory
         self.documents = []
         self.document_names = []
 
-    # Metodo per estrarre il testo dai PDF
+    # Method for extracting text from PDFs
     def extract_text_from_pdfs(self):
         for filename in os.listdir(self.directory):
             if filename.endswith(".pdf"):
@@ -20,7 +20,7 @@ class Retriving:
                     self.documents.append(text)
         return self.documents, self.document_names
 
-    # Metodo per stampare i nomi dei file caricati
+    # Method for printing the names of uploaded files
     def print_loaded_documents(self):
         print("\n-> Documenti caricati:")
         for filename in self.document_names:

@@ -3,11 +3,11 @@ import torch
 
 class Embedding:
     def __init__(self):
-        # Carica il modello di embedding
+        # Upload the embedding template
         self.tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
         self.model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 
-    # Funzione per trasformare il testo dei documenti in vettori
+    # Method for transforming document text into vectors
     def embed_documents(self, documents):
         inputs = self.tokenizer(documents, padding=True, truncation=True, return_tensors="pt")
         with torch.no_grad():
