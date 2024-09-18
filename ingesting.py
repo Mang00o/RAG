@@ -18,7 +18,7 @@ class Ingesting:
                     for page in range(len(reader.pages)):
                         text += reader.pages[page].extract_text()
                     self.documents.append(text)
-        return self.documents, self.document_names
+        return self.documents
 
     # Method for printing the names of uploaded files
     def print_loaded_documents(self):

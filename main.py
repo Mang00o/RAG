@@ -20,11 +20,13 @@ def main():
     ingesting = Ingesting(directory)
 
     # Extract text from pdf into the directory
-    pdf_texts, pdf_filenames = ingesting.extract_text_from_pdfs()
+    pdf_texts = ingesting.extract_text_from_pdfs()
 
     # Prints the names of the PDF documents from which it extracted the text
     ingesting.print_loaded_documents()
 
+    print("\n-> Documents ingested successfully!")
+    
     #################################
     #       PHASE 2 ~ EMBEDDING     #
     #################################
@@ -34,16 +36,18 @@ def main():
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
     document_embeddings = embedding.embed_documents(pdf_texts)
+
+    print("\n-> Documents embedded successfully!")
     
     #################################
     #       PHASE 3 ~ INDEXING      #
     #################################
 
-    # Crea un indice FAISS
+    # Create a FAISS index
     index = faiss.IndexFlatL2(document_embeddings.shape[1])
     index.add(document_embeddings)
 
-    print("\n-> Documenti indicizzati con successo!")
+    print("\n-> Documents indexed successfully!")
 
     #################################
     #       PHASE 4 ~ RETRIVING     #
