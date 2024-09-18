@@ -27,7 +27,6 @@ def main():
 
     # Extract text from pdf into the directory
     pdf_texts, pdf_filenames = ingesting.extract_text_from_pdfs()
-    print(pdf_texts)
 
     # Prints the names of the PDF documents from which it extracted the text
     ingesting.print_loaded_documents()
@@ -42,8 +41,8 @@ def main():
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_documents = embedding.embed_documents(pdf_texts)
-
+    embed_text = embedding.embed_texts(pdf_texts)
+    
     print("\n-> Documents embedded successfully!")
     
     #########################################
@@ -51,13 +50,13 @@ def main():
     #########################################
 
     # Creates an instance of the Indexing class
-    indexing = Indexing(embed_documents.shape[1])
+    indexing = Indexing(embed_text.shape[1])
 
     # Create a FAISS index
-    index = faiss.IndexFlatL2(embed_documents.shape[1])
+    index = faiss.IndexFlatL2(embed_text.shape[1])
 
     # Add the document embeddings to the FAISS index for efficient similarity search
-    index = indexing.add(embed_documents)
+    index = indexing.add(embed_text)
 
     print("\n-> Documents indexed successfully!")
 
@@ -68,7 +67,7 @@ def main():
     # Prompt the user to input a query for searching relevant documents
 
     # Creates an instance of the Retrieving class
-    retriving = Retrieving(embed_documents, pdf_filenames, index)
+    retriving = Retrieving(embed_text, pdf_filenames, index)
 
     # Define const numner of documents to retrieve
     DOCUMENTS_TO_RETRIEVE = 5
