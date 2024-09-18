@@ -24,7 +24,15 @@ def main():
     # Stampa i nomi dei documenti pdf da cui ha estratto il testo
     retriving.print_loaded_documents()
 
-    
+    #################################
+    #       PHASE 2 ~ EMBEDDING     #
+    #################################
+
+    # Crea un'istanza della classe Embedding
+    embedding = Embedding()
+
+    # Passa i testi dei documenti per ottenere gli embedding (ad esempio da pdf_texts)
+    document_embeddings = embedding.embed_documents(pdf_texts)
     
 
     # Stampa fine script
