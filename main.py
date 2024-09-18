@@ -2,6 +2,7 @@ from prittier import frame_text
 from warning import manage_warning
 from ingesting import Ingesting
 from embedding import Embedding
+from indexing import Indexing
 from retrieving import Retrieving
 from generating import Generating
 import faiss
@@ -45,11 +46,14 @@ def main():
     #       PHASE 3 ~ INDEXING      #
     #################################
 
+    # Creates an instance of the Indexing class
+    indexing = Indexing(embed_documents.shape[1])
+
     # Create a FAISS index
     index = faiss.IndexFlatL2(embed_documents.shape[1])
 
     # Add the document embeddings to the FAISS index for efficient similarity search
-    index.add(embed_documents)
+    index = indexing.add(embed_documents)
 
     print("\n-> Documents indexed successfully!")
 
