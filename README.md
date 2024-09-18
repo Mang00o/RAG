@@ -55,7 +55,7 @@ pip install -r requirements.txt
 ### Eseguire il progetto
 
 ```bash
-python main.py
+python .\src\main.py
 ```
 
 ## Evoluzione
