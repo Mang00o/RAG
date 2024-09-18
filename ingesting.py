@@ -22,6 +22,6 @@ class Ingesting:
 
     # Method for printing the names of uploaded files
     def print_loaded_documents(self):
-        print("\n-> Documenti caricati:")
+        print("\n-> Load Files:")
         for filename in self.document_names:
             print(f"\t- {filename}")

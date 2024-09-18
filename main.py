@@ -2,6 +2,7 @@ from prittier import frame_text
 from warning import manage_warning
 from ingesting import Ingesting
 from embedding import Embedding
+import faiss
 
 def main():
     frame_text('Start of script')
@@ -37,6 +38,12 @@ def main():
     #################################
     #       PHASE 3 ~ INDEXING      #
     #################################
+
+    # Crea un indice FAISS
+    index = faiss.IndexFlatL2(document_embeddings.shape[1])
+    index.add(document_embeddings)
+
+    print("\n-> Documenti indicizzati con successo!")
 
     #################################
     #       PHASE 4 ~ RETRIVING     #
