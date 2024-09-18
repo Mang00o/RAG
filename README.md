@@ -58,6 +58,13 @@ pip install -r requirements.txt
 python .\src\main.py
 ```
 
+### In caso di aggiunta di librerie eseguire
+
+```bash
+pip freeze > requirements.txt
+```
+
+
 ## Evoluzione
 
 Ecco link utili per approfondire future evoluzioni:
