@@ -66,8 +66,14 @@ def main():
     # Creates an instance of the Retrieving class
     retriving = Retrieving(embed_documents, pdf_filenames, index)
 
+    # Define const numner of documents to retrieve
+    DOCUMENTS_TO_RETRIEVE = 5
+
+    # Define value of variable k
+    k = min(DOCUMENTS_TO_RETRIEVE, len(pdf_filenames)) # 'k' indicates the number of documents to retrieve
+
     # Perform a search for the top k most relevant documents based on the query embedding
-    result = retriving.search_documents(k=5)  # 'k' indicates the number of documents to retrieve
+    result = retriving.search_documents(k)  
 
     # Print the retrieved documents along with their distances
     retriving.print_relevant_documents(result)
