@@ -5,7 +5,6 @@ from embedding import Embedding
 from indexing import Indexing
 from retrieving import Retrieving
 from generating import Generating
-import faiss
 
 def main():
     #########################################
@@ -51,9 +50,6 @@ def main():
 
     # Creates an instance of the Indexing class
     indexing = Indexing(embed_text.shape[1])
-
-    # Create a FAISS index
-    index = faiss.IndexFlatL2(embed_text.shape[1])
 
     # Add the document embeddings to the FAISS index for efficient similarity search
     index = indexing.add(embed_text)
