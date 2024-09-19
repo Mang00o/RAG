@@ -1,3 +1,4 @@
+import re
 from embedding import Embedding
 
 class Retrieving:
@@ -30,19 +31,27 @@ class Retrieving:
     # Boost documents that contain the query keyword using the raw document text
     def boost_keyword_relevance(self, query, embedding_results):
         boosted_results = []
-        for idx, (doc_name, distance) in enumerate(embedding_results):
-            # Check how many times the query appears in the document text
-            relevance = self.pdf_texts[idx].lower().count(query.lower())  # Use the raw text
+        query = query.lower()
 
-            # Adjust the distance based on relevance
+        # Usa una regex per trovare la parola chiave esatta
+        query_regex = re.compile(r'\b' + re.escape(query) + r'\b', re.IGNORECASE)
+
+        for idx, (doc_name, distance) in enumerate(embedding_results):
+            # Controlla il testo estratto
+            doc_text = self.pdf_texts[idx].lower()
+
+            # Cerca la query nel testo usando regex
+            relevance = len(query_regex.findall(doc_text))
+
+            # Modifica la distanza in base alla rilevanza
             if relevance > 0:
-                adjusted_distance = distance - (relevance * 0.5)
+                adjusted_distance = max(distance - (relevance * 0.3), 0)
             else:
-                adjusted_distance = distance + 5
+                adjusted_distance = distance
 
             boosted_results.append((doc_name, adjusted_distance))
 
-        # Sort results based on the adjusted distance
+        # Ordina i risultati in base alla distanza regolata
         boosted_results.sort(key=lambda x: x[1])
         return boosted_results
 
