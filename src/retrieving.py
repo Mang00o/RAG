@@ -26,7 +26,7 @@ class Retrieving:
     def print_relevant_documents(self, result):
         # Print the header for the relevant documents
         print("\n-> Most relevant documents found:")
-        print("\tDocument                                | Distance")
+        print("\tDocument                                 | Distance")
         print("\t-----------------------------------------|-----------")
         
         # Loop through the result and print each document and its corresponding distance
