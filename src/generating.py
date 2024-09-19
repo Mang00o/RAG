@@ -25,12 +25,13 @@ class Generating:
                 stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, 
                 text=True, encoding='utf-8', errors='replace'
             )
-            
-            # Send the prompt and retrieve the response
+
+            # Stampa il prompt completo
             stdout, stderr = process.communicate(input=prompt)
-            
+
+            # Controlla l'output stderr
             if stderr:
-                raise RuntimeError(f"Error: {stderr}")
+                print(f"Errore da Ollama: {stderr}")
             
             return stdout.strip()  # Return Ollama's response
 
