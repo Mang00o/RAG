@@ -36,9 +36,9 @@ class Retrieving:
 
             # Adjust the distance based on relevance
             if relevance > 0:
-                adjusted_distance = distance - (relevance * 0.1)
+                adjusted_distance = distance - (relevance * 0.5)
             else:
-                adjusted_distance = distance
+                adjusted_distance = distance + 5
 
             boosted_results.append((doc_name, adjusted_distance))
 
