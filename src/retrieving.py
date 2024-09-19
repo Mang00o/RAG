@@ -33,17 +33,17 @@ class Retrieving:
         boosted_results = []
         query = query.lower()
 
-        # Usa una regex per trovare la parola chiave esatta
+        # Use a regex to find the exact keyword
         query_regex = re.compile(r'\b' + re.escape(query) + r'\b', re.IGNORECASE)
 
         for idx, (doc_name, distance) in enumerate(embedding_results):
-            # Controlla il testo estratto
+            # Check the extracted text
             doc_text = self.pdf_texts[idx].lower()
 
-            # Cerca la query nel testo usando regex
+            # Search for query in text using regex
             relevance = len(query_regex.findall(doc_text))
 
-            # Modifica la distanza in base alla rilevanza
+            # Change distance based on relevance    
             if relevance > 0:
                 adjusted_distance = max(distance - (relevance * 0.3), 0)
             else:
@@ -51,7 +51,7 @@ class Retrieving:
 
             boosted_results.append((doc_name, adjusted_distance))
 
-        # Ordina i risultati in base alla distanza regolata
+        # Sort results by adjusted distance
         boosted_results.sort(key=lambda x: x[1])
         return boosted_results
 

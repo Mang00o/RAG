@@ -60,8 +60,6 @@ def main():
     #           PHASE 4 ~ RETRIEVING        #
     #########################################
 
-    # Prompt the user to input a query for searching relevant documents
-
     # Creates an instance of the Retrieving class
     retrieving = Retrieving(embed_text, pdf_filenames, pdf_texts, index)
 

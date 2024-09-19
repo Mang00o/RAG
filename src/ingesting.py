@@ -14,7 +14,6 @@ class Ingesting:
                 self.document_names.append(filename)
         return self.document_names
 
-
     # Function to extract text from a single PDF
     def extract_text_from_pdf(self, filename):
         with open(os.path.join(self.directory, filename), 'rb') as file:

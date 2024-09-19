@@ -26,12 +26,12 @@ class Generating:
                 text=True, encoding='utf-8', errors='replace'
             )
 
-            # Stampa il prompt completo
+            # Print the complete prompt
             stdout, stderr = process.communicate(input=prompt)
 
-            # Controlla l'output stderr
+            # Check stderr output
             if stderr:
-                print(f"Errore da Ollama: {stderr}")
+                print(f"Error from Ollama: {stderr}")
             
             return stdout.strip()  # Return Ollama's response
 
