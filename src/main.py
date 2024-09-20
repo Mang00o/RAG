@@ -25,7 +25,7 @@ def main():
     ingesting = Ingesting(directory)
 
     # Extract text from pdf into the directory
-    pdf_texts, pdf_filenames = ingesting.extract_text_from_pdfs()
+    pdf_texts, pdf_filenames = ingesting.extract_content_from_pdfs()
 
     # Prints the names of the PDF documents from which it extracted the text
     ingesting.print_loaded_documents()
