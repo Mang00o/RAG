@@ -52,7 +52,7 @@ def main():
     indexing = Indexing(embed_texts.shape[1])
 
     # Add the document embeddings to the FAISS index for efficient similarity search
-    index = indexing.add(embed_texts)
+    indexes = indexing.add(embed_texts)
 
     print("\n-> Documents indexed successfully!")
 
@@ -61,7 +61,7 @@ def main():
     #########################################
 
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(embed_texts, pdf_filenames, pdfs_content, index)
+    retrieving = Retrieving(embed_texts, pdf_filenames, pdfs_content, indexes)
 
     # Define const numner of documents to retrieve
     DOCUMENTS_TO_RETRIEVE = 5
