@@ -64,11 +64,19 @@ python .\src\main.py
 pip freeze > requirements.txt
 ```
 
-
 ## Evoluzione
 
 Ecco link utili per approfondire future evoluzioni:
 
 - [Python/Flash on DDEV](https://ddev.readthedocs.io/en/stable/users/quickstart/#pythonflask-experimental)
 - [TryChroma](https://www.trychroma.com/)
+    - Embedding Models
+    - [Ollama Embeddings](https://docs.trychroma.com/integrations/ollama)
+    - [Instructor Embeddings](https://docs.trychroma.com/integrations/instructor)
+    - Frameworks
+    - [Benchmark Embeddings Generation](https://huggingface.co/blog/mteb#benchmark-your-model)
+    - [Streamlit Web App](https://docs.trychroma.com/integrations/streamlit)
+    - [OpenLIT Telemetry](https://docs.trychroma.com/integrations/openlit)
+    - [Haystack Embedding](https://docs.trychroma.com/integrations/haystack)
+    - [LlamaIndex](https://docs.trychroma.com/integrations/llamaindex)
 - [LangChain](https://js.langchain.com/v0.1/docs/modules/data_connection/)
