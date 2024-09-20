@@ -16,23 +16,23 @@ class Ingesting:
 
     # Function to extract text from a single PDF
     def extract_content_from_pdf(self, document_name):
-        with open(os.path.join(self.document_directory, document_name), 'rb') as file:
-            reader = PyPDF2.PdfReader(file)
+        with open(os.path.join(self.document_directory, document_name), 'rb') as document:
+            pdf_reader = PyPDF2.PdfReader(document)
             content = ""
-            for page in range(len(reader.pages)):
-                content += reader.pages[page].extract_text()
+            for page in range(len(pdf_reader.pages)):
+                content += pdf_reader.pages[page].extract_text()
         return content
 
     # Main function that uses the above two functions to process all PDFs
     def extract_content_from_pdfs(self):
         pdf_filenames = self.get_pdf_filenames()
-        for filename in pdf_filenames:
-            content = self.extract_content_from_pdf(filename)
+        for pdf_finemane in pdf_filenames:
+            content = self.extract_content_from_pdf(pdf_finemane)
             self.documents_content.append(content)
         return self.documents_content, self.document_names
 
     # Method for printing the names of uploaded files
-    def print_loaded_documents(self):
+    def print_loaded_document_names(self):
         print("\n-> Load Files:")
-        for filename in self.document_names:
-            print(f"\t- {filename}")
+        for document_name in self.document_names:
+            print(f"\t- {document_name}")

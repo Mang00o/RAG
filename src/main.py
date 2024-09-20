@@ -25,10 +25,10 @@ def main():
     ingesting = Ingesting(directory)
 
     # Extract text from pdf into the directory
-    pdf_texts, pdf_filenames = ingesting.extract_content_from_pdfs()
+    pdfs_content, pdf_filenames = ingesting.extract_content_from_pdfs()
 
     # Prints the names of the PDF documents from which it extracted the text
-    ingesting.print_loaded_documents()
+    ingesting.print_loaded_document_names()
 
     print("\n-> Documents ingested successfully!")
     
@@ -40,7 +40,7 @@ def main():
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_text = embedding.embed_texts(pdf_texts)
+    embed_texts = embedding.embed_texts(pdfs_content)
     
     print("\n-> Documents embedded successfully!")
     
@@ -49,10 +49,10 @@ def main():
     #########################################
 
     # Creates an instance of the Indexing class
-    indexing = Indexing(embed_text.shape[1])
+    indexing = Indexing(embed_texts.shape[1])
 
     # Add the document embeddings to the FAISS index for efficient similarity search
-    index = indexing.add(embed_text)
+    index = indexing.add(embed_texts)
 
     print("\n-> Documents indexed successfully!")
 
@@ -61,7 +61,7 @@ def main():
     #########################################
 
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(embed_text, pdf_filenames, pdf_texts, index)
+    retrieving = Retrieving(embed_texts, pdf_filenames, pdfs_content, index)
 
     # Define const numner of documents to retrieve
     DOCUMENTS_TO_RETRIEVE = 5
@@ -82,7 +82,7 @@ def main():
     #########################################
     
     # Create an instance of the Generating class with the PDF texts and filenames
-    generating = Generating(pdf_texts, pdf_filenames)
+    generating = Generating(pdfs_content, pdf_filenames)
 
     # Generate a response using the Ollama model based on the query and the search results
     response = generating.generate_response_with_ollama(retrieving.query, result)
