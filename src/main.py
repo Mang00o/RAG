@@ -40,7 +40,7 @@ def main():
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_texts = embedding.embed_texts(pdfs_content)
+    embed_texts = embedding.embed_contents(pdfs_content)
     
     print("\n-> Documents embedded successfully!")
     
