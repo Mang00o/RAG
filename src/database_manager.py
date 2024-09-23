@@ -3,9 +3,9 @@ import mysql.connector
 class DatabaseManager:
     # Class constructor
     def __init__(self):
-        self.host = "localhost", 
-        self.user = "root", 
-        self.password = "1234Ale!", 
+        self.host = "localhost" 
+        self.user = "root" 
+        self.password = "1234Ale!" 
         self.database = "My_Rag"
         self.conn = None
         self.cursor = None
@@ -32,22 +32,25 @@ class DatabaseManager:
         if self.conn:
             self.conn.close()
         print("Connection closed.")
-    
-    # Method to write documents names to the database
-    def save_documents_names(self, documents_names):
-        # SQL query to insert document names into the loaded_documents table
-        query = "INSERT INTO loaded_documents (filename) VALUES (%s)"
+
+    # Method to write document names and contents to the database
+    def save_documents(self, document_names, document_contents):
+        query = """
+            INSERT INTO loaded_documents (filename, content)
+            VALUES (%s, %s)
+            ON DUPLICATE KEY UPDATE content = VALUES(content)
+        """
         
-        # Create a list of tuples, each containing a single document_name
-        data = [(doc,) for doc in documents_names]
+        # Create a list of tuples with (document_name, document_content)
+        data = [(document_names[i], document_contents[i]) for i in range(len(document_names))]
         
         try:
-            # Execute the query for all documents in a single call
+            # Execute a batch insert/update in a single call
             self.cursor.executemany(query, data)
-            self.conn.commit()  # Commit the changes to the database
-            print(f"Documents saved successfully")
+            self.conn.commit()  # Commit changes to the database
+            print(f"Documents and contents saved successfully!")
         except mysql.connector.Error as err:
-            print(f"Error saving documents: {err}")
+            print(f"Error saving documents and contents: {err}")
     
     # Method to read documents names from the database
     def load_documents_names(self):
@@ -65,21 +68,6 @@ class DatabaseManager:
         
         # Return the list of document names
         return documents_names
-
-    # Method to write documents contents to the database
-    def save_documents_contents(self, document_names, document_contents):
-        query = "UPDATE loaded_documents SET content = %s WHERE filename = %s"
-        
-        # Create a list of tuples containing (content, document_name)
-        data = [(document_contents[i], document_names[i]) for i in range(len(document_names))]
-        
-        try:
-            # Query all documents in a single call
-            self.cursor.executemany(query, data)
-            self.conn.commit()  # Save changes to database
-            print(f"Contents saved successfully!")
-        except mysql.connector.Error as err:
-            print(f"Error saving contents: {err}")
 
     # Method to load the content of multiple documents based on their filenames in one query
     def load_documents_content(self, documents_names):
