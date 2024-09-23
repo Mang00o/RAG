@@ -1,5 +1,6 @@
 from prittier import frame_text
 from warning import manage_warning
+from database_manager import DatabaseManager
 from ingesting import Ingesting
 from embedding import Embedding
 from indexing import Indexing
@@ -15,6 +16,19 @@ def main():
     manage_warning()
 
     #########################################
+    #           PHASE 0 ~ DBING             #
+    #########################################
+
+    # Create a Retriving instance
+    db_manager = DatabaseManager()
+
+    # Connect to the database
+    db_manager.connect()
+
+    # Read documents names from the database
+    db_documents_names = db_manager.load_documents_names()
+
+    #########################################
     #           PHASE 1 ~ INGESTING         #
     #########################################
 
@@ -22,16 +36,19 @@ def main():
     directory = "documents"
 
     # Create a Retriving instance
-    ingesting = Ingesting(directory)
+    ingesting = Ingesting(directory, db_documents_names)
 
     # Extract text from pdf into the directory
-    pdfs_content, pdf_filenames = ingesting.extract_content_from_pdfs()
+    pdfs_filenames, pdfs_contents = ingesting.ingesting()
 
     # Prints the names of the PDF documents from which it extracted the text
-    ingesting.print_loaded_document_names()
+    ingesting.print_ingested_documents()
+
+    # Save ingested documents on DB
+    db_manager.save_documents(pdfs_filenames, pdfs_contents)
 
     print("\n-> Documents ingested successfully!")
-    
+
     #########################################
     #           PHASE 2 ~ EMBEDDING         #
     #########################################
@@ -40,7 +57,7 @@ def main():
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_texts = embedding.embed_contents(pdfs_content)
+    embed_texts = embedding.embed_contents(pdfs_contents)
     
     print("\n-> Documents embedded successfully!")
     
@@ -61,7 +78,7 @@ def main():
     #########################################
 
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(pdf_filenames, pdfs_content, indexes)
+    retrieving = Retrieving(pdfs_filenames, pdfs_contents, indexes)
 
     # Perform a search for the top k most relevant documents based on the query embedding
     retrieved_document = retrieving.search_documents()  
@@ -76,7 +93,7 @@ def main():
     #########################################
     
     # Create an instance of the Generating class with the PDF texts and filenames
-    generating = Generating(pdfs_content, pdf_filenames)
+    generating = Generating(pdfs_contents, pdfs_filenames)
 
     # Generate a response using the Ollama model based on the query and the search results
     response = generating.generate_response_with_ollama(retrieving.query, retrieved_document)
@@ -95,6 +112,8 @@ def main():
     #########################################
     #                 END                   #
     #########################################
+
+    db_manager.close()
 
     frame_text('End of the Script')
 

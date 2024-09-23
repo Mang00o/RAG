@@ -44,13 +44,13 @@ class Ingesting:
             return "".join(content)
 
         except Exception as e:
-            print(f"Error reading {document_name}: {e}")
+            print(f"\n-> Error reading {document_name}: {e}")
             return ""
 
     # Prints the names of the PDF documents from which it extracted the text    
     def print_ingested_documents(self):
         if not self.documents_names:
-            print("Documents already ingested")
+            print("\n-> Documents already ingested")
         else:
             print("\n-> Ingested Documents:")
             for document_name in self.documents_names:

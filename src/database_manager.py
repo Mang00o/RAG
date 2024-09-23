@@ -21,9 +21,9 @@ class DatabaseManager:
                 database=self.database
             )
             self.cursor = self.conn.cursor()
-            print("Connected to database successfully!")
+            print("\n-> Connected to database successfully!")
         except mysql.connector.Error as err:
-            print(f"Error: {err}")
+            print(f"\n-> Error: {err}")
     
     # Method to close the database connection
     def close(self):
@@ -31,7 +31,7 @@ class DatabaseManager:
             self.cursor.close()
         if self.conn:
             self.conn.close()
-        print("Connection closed.")
+        print("\n-> Connection closed.")
 
     # Method to write document names and contents to the database
     def save_documents(self, document_names, document_contents):
@@ -48,9 +48,9 @@ class DatabaseManager:
             # Execute a batch insert/update in a single call
             self.cursor.executemany(query, data)
             self.conn.commit()  # Commit changes to the database
-            print(f"Documents and contents saved successfully!")
+            print(f"\n-> Documents and contents saved successfully!")
         except mysql.connector.Error as err:
-            print(f"Error saving documents and contents: {err}")
+            print(f"\n-> Error saving documents and contents: {err}")
     
     # Method to read documents names from the database
     def load_documents_names(self):
