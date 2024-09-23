@@ -1,6 +1,7 @@
 import mysql.connector
 
 class DatabaseManager:
+    # Class constructor
     def __init__(self, host, user, password, database):
         self.host = host
         self.user = user
@@ -31,41 +32,76 @@ class DatabaseManager:
             self.conn.close()
         print("Connection closed.")
     
-    # Method to write document names to the database
-    def save_documents(self, document_names):
-        for doc in document_names:
-            query = "INSERT INTO loaded_documents (filename) VALUES (%s)"
-            try:
-                self.cursor.execute(query, (doc,))
-            except mysql.connector.Error as err:
-                print(f"Error inserting {doc}: {err}")
-        self.conn.commit()
-        print(f"Documents saved successfully")
-    
-    # Method to read document names from the database
-    def load_documents(self):
-        query = "SELECT filename FROM loaded_documents"
-        self.cursor.execute(query)
-        rows = self.cursor.fetchall()
-        document_names = [row[0] for row in rows]
-        print(f"Documents loaded successfully")
-        return document_names
-    
-    def save_content(self, document_name, content):
-        query = "UPDATE loaded_documents SET content = %s WHERE filename = %s"
+    # Method to write documents names to the database
+    def save_documents_names(self, documents_names):
+        # SQL query to insert document names into the loaded_documents table
+        query = "INSERT INTO loaded_documents (filename) VALUES (%s)"
+        
+        # Create a list of tuples, each containing a single document_name
+        data = [(doc,) for doc in documents_names]
+        
         try:
-            self.cursor.execute(query, (content, document_name))
-            self.conn.commit()  # Salva i cambiamenti nel database
-            print(f"Content for {document_name} saved successfully!")
+            # Execute the query for all documents in a single call
+            self.cursor.executemany(query, data)
+            self.conn.commit()  # Commit the changes to the database
+            print(f"Documents saved successfully")
         except mysql.connector.Error as err:
-            print(f"Error saving content for {document_name}: {err}")
+            print(f"Error saving documents: {err}")
+    
+    # Method to read documents names from the database
+    def load_documents_names(self):
+        # SQL query to select all filenames from the loaded_documents table
+        query = "SELECT filename FROM loaded_documents"
+        
+        # Execute the query to retrieve the filenames
+        self.cursor.execute(query)
+        
+        # Fetch all rows from the query result
+        rows = self.cursor.fetchall()
+        
+        # Extract the filenames from the rows and store them in a list
+        documents_names = [row[0] for row in rows]
+        
+        # Return the list of document names
+        return documents_names
 
-    def load_content(self, document_name):
-        query = "SELECT content FROM loaded_documents WHERE filename = %s"
-        self.cursor.execute(query, (document_name,))
-        result = self.cursor.fetchone()  # Ritorna una singola riga
-        if result:
-            return result[0]  # Il contenuto è il primo (e unico) elemento della riga
-        else:
-            print(f"No content found for {document_name}")
-            return None
+    # Method to write documents contents to the database
+    def save_documents_contents(self, document_names, document_contents):
+        query = "UPDATE loaded_documents SET content = %s WHERE filename = %s"
+        
+        # Create a list of tuples containing (content, document_name)
+        data = [(document_contents[i], document_names[i]) for i in range(len(document_names))]
+        
+        try:
+            # Query all documents in a single call
+            self.cursor.executemany(query, data)
+            self.conn.commit()  # Save changes to database
+            print(f"Contents saved successfully!")
+        except mysql.connector.Error as err:
+            print(f"Error saving contents: {err}")
+
+    # Method to load the content of multiple documents based on their filenames in one query
+    def load_documents_content(self, documents_names):
+        # If the document_names list is empty, return an empty list
+        if not documents_names:
+            return []
+        
+        # Create the SQL query using the IN clause to search for multiple filenames
+        format_strings = ','.join(['%s'] * len(documents_names))  # Create placeholders for the query
+        query = f"SELECT filename, content FROM loaded_documents WHERE filename IN ({format_strings})"
+        
+        # Execute the query with the list of document names
+        self.cursor.execute(query, documents_names)
+        
+        # Fetch all the rows from the result
+        rows = self.cursor.fetchall()
+        
+        # Create a dictionary to map filenames to content
+        content_dict = {row[0]: row[1] for row in rows}
+        
+        # Return the content in the same order as the document_names list
+        contents = [content_dict.get(name, None) for name in documents_names]
+        
+        return contents
+
+
