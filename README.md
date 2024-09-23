@@ -80,3 +80,7 @@ Ecco link utili per approfondire future evoluzioni:
     - [Haystack Embedding](https://docs.trychroma.com/integrations/haystack)
     - [LlamaIndex](https://docs.trychroma.com/integrations/llamaindex)
 - [LangChain](https://js.langchain.com/v0.1/docs/modules/data_connection/)
+- **Estrarre testo**
+    - PDFMiner
+    - PyMuPDF (fitz)
+    - Textract
