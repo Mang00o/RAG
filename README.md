@@ -84,3 +84,6 @@ Ecco link utili per approfondire future evoluzioni:
     - PDFMiner
     - PyMuPDF (fitz)
     - Textract
+- **Python query a db (approccio ORM)**
+    - SQLAlchemy 
+    - peewee
