@@ -39,13 +39,17 @@ def main():
     ingesting = Ingesting(directory, db_documents_names)
 
     # Extract text from pdf into the directory
-    pdfs_filenames, pdfs_contents = ingesting.ingesting()
+    ingested_documents_names, ingested_documentes_contents = ingesting.ingesting()
 
     # Prints the names of the PDF documents from which it extracted the text
     ingesting.print_ingested_documents()
 
     # Save ingested documents on DB
-    db_manager.save_documents(pdfs_filenames, pdfs_contents)
+    db_manager.save_documents(ingested_documents_names, ingested_documentes_contents)
+
+    documents_names = db_documents_names + ingested_documents_names
+
+    documents_contents = db_manager.load_documents_contents(db_documents_names) + ingested_documentes_contents
 
     print("\n-> Documents ingested successfully!")
 
@@ -57,7 +61,7 @@ def main():
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_texts = embedding.embed_contents(pdfs_contents)
+    embed_texts = embedding.embed_contents(documents_contents)
     
     print("\n-> Documents embedded successfully!")
     
@@ -78,7 +82,7 @@ def main():
     #########################################
 
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(pdfs_filenames, pdfs_contents, indexes)
+    retrieving = Retrieving(documents_names, documents_contents, indexes)
 
     # Perform a search for the top k most relevant documents based on the query embedding
     retrieved_document = retrieving.search_documents()  
@@ -93,7 +97,7 @@ def main():
     #########################################
     
     # Create an instance of the Generating class with the PDF texts and filenames
-    generating = Generating(pdfs_contents, pdfs_filenames)
+    generating = Generating(documents_contents, documents_names)
 
     # Generate a response using the Ollama model based on the query and the search results
     response = generating.generate_response_with_ollama(retrieving.query, retrieved_document)

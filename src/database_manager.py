@@ -70,7 +70,7 @@ class DatabaseManager:
         return documents_names
 
     # Method to load the content of multiple documents based on their filenames in one query
-    def load_documents_content(self, documents_names):
+    def load_documents_contents(self, documents_names):
         # If the document_names list is empty, return an empty list
         if not documents_names:
             return []
