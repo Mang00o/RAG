@@ -40,7 +40,7 @@ class DatabaseManager:
             except mysql.connector.Error as err:
                 print(f"Error inserting {doc}: {err}")
         self.conn.commit()
-        print(f"Documents saved successfully: {document_names}")
+        print(f"Documents saved successfully")
     
     # Method to read document names from the database
     def load_documents(self):
@@ -48,5 +48,24 @@ class DatabaseManager:
         self.cursor.execute(query)
         rows = self.cursor.fetchall()
         document_names = [row[0] for row in rows]
-        print(f"Loaded documents: {document_names}")
+        print(f"Documents loaded successfully")
         return document_names
+    
+    def save_content(self, document_name, content):
+        query = "UPDATE loaded_documents SET content = %s WHERE filename = %s"
+        try:
+            self.cursor.execute(query, (content, document_name))
+            self.conn.commit()  # Salva i cambiamenti nel database
+            print(f"Content for {document_name} saved successfully!")
+        except mysql.connector.Error as err:
+            print(f"Error saving content for {document_name}: {err}")
+
+    def load_content(self, document_name):
+        query = "SELECT content FROM loaded_documents WHERE filename = %s"
+        self.cursor.execute(query, (document_name,))
+        result = self.cursor.fetchone()  # Ritorna una singola riga
+        if result:
+            return result[0]  # Il contenuto è il primo (e unico) elemento della riga
+        else:
+            print(f"No content found for {document_name}")
+            return None
