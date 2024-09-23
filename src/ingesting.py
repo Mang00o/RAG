@@ -3,24 +3,22 @@ import os
 import PyPDF2
 
 class Ingesting:
-    def __init__(self, document_directory):
+    def __init__(self, document_directory, db_documents_names):
         self.document_directory = document_directory
         self.documents_names = []
         self.documents_contents = []
-        self.db_manager = DatabaseManager(host="localhost", user="root", password="1234Ale!", database="My_Rag")
+        self.db_documents_names = db_documents_names
 
+    # Main function of the class - Ingest documents
     def ingesting(self):
         self.__ingesting_pdf_filenames()
         self.__ingesting_pdfs_contents()
         return self.documents_names, self.documents_contents
 
     # Function to get the PDF filenames
-    def __ingesting_pdf_filenames(self):
-        self.db_manager.connect()
-        db_documents_names = self.db_manager.load_documents()
-        self.db_manager.close()
+    def __ingesting_pdf_filenames(self):    
         for document_name in os.listdir(self.document_directory):
-            if document_name.endswith(".pdf") and document_name not in db_documents_names:
+            if document_name.endswith(".pdf") and document_name not in self.db_documents_names:
                 self.documents_names.append(document_name)
         
     def __ingesting_pdfs_contents(self):
@@ -33,7 +31,7 @@ class Ingesting:
         content = []  # Use a list to accumulate the content for better performance
         try:
             with open(os.path.join(self.document_directory, document_name), 'rb') as document:
-                pdf_reader = PyPDF2.PdfReader(document_name)
+                pdf_reader = PyPDF2.PdfReader(document)
                 
                 for page in range(len(pdf_reader.pages)):
                     page_text = pdf_reader.pages[page].extract_text()
