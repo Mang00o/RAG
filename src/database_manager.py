@@ -2,17 +2,18 @@ import mysql.connector
 
 class DatabaseManager:
     # Class constructor
-    def __init__(self, host, user, password, database):
-        self.host = host
-        self.user = user
-        self.password = password
-        self.database = database
+    def __init__(self):
+        self.host = "localhost", 
+        self.user = "root", 
+        self.password = "1234Ale!", 
+        self.database = "My_Rag"
         self.conn = None
         self.cursor = None
     
     # Method to connect to the database
     def connect(self):
         try:
+            # Connect to the database
             self.conn = mysql.connector.connect(
                 host=self.host,
                 user=self.user,
