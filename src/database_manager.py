@@ -72,7 +72,7 @@ class DatabaseManager:
                 "L2-normalization",         # Normalization used
                 binary_embeddings[i]        # Binary embedding
             )
-            for i in len(documents_ids)
+            for i in range(len(documents_ids))
         ]
 
         try:
