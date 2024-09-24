@@ -1,4 +1,3 @@
-from database_manager import DatabaseManager
 import os
 import PyPDF2
 
