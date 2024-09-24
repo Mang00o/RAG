@@ -26,7 +26,7 @@ def main():
     db_manager.connect()
 
     # Read documents names from the database
-    db_documents_names = db_manager.load_documents_names()
+    db_documents_titles = db_manager.load_documents_names()
 
     #########################################
     #           PHASE 1 ~ INGESTING         #
@@ -36,20 +36,20 @@ def main():
     directory = "documents"
 
     # Create a Retriving instance
-    ingesting = Ingesting(directory, db_documents_names)
+    ingesting = Ingesting(directory, db_documents_titles)
 
     # Extract text from pdf into the directory
-    ingested_documents_names, ingested_documentes_contents = ingesting.ingesting()
+    ingested_documents_titles, ingested_documentes_contents = ingesting.ingesting()
 
     # Prints the names of the PDF documents from which it extracted the text
     ingesting.print_ingested_documents()
 
     # Save ingested documents on DB
-    db_manager.save_documents(ingested_documents_names, ingested_documentes_contents)
+    db_manager.save_documents(ingested_documents_titles, ingested_documentes_contents)
 
-    documents_names = db_documents_names + ingested_documents_names
+    documents_titles = db_documents_titles + ingested_documents_titles
 
-    documents_contents = db_manager.load_documents_contents(db_documents_names) + ingested_documentes_contents
+    documents_contents = db_manager.load_documents_contents(db_documents_titles) + ingested_documentes_contents
 
     print("\n-> Documents ingested successfully!")
 
@@ -60,8 +60,8 @@ def main():
     # Creates an instance of the Embedding class
     embedding = Embedding()
 
-    # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_texts = embedding.embed_contents(documents_contents)
+    # Pass document contents to get embeddings
+    embed_contents = embedding.embedding(documents_contents)
     
     print("\n-> Documents embedded successfully!")
     
@@ -70,10 +70,10 @@ def main():
     #########################################
 
     # Creates an instance of the Indexing class
-    indexing = Indexing(embed_texts.shape[1])
+    indexing = Indexing(embed_contents.shape[1])
 
     # Add the document embeddings to the FAISS index for efficient similarity search
-    indexes = indexing.add(embed_texts)
+    indexes = indexing.add(embed_contents)
 
     print("\n-> Documents indexed successfully!")
 
@@ -82,7 +82,7 @@ def main():
     #########################################
 
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(documents_names, documents_contents, indexes)
+    retrieving = Retrieving(documents_titles, documents_contents, indexes)
 
     # Perform a search for the top k most relevant documents based on the query embedding
     retrieved_document = retrieving.search_documents()  
@@ -97,7 +97,7 @@ def main():
     #########################################
     
     # Create an instance of the Generating class with the PDF texts and filenames
-    generating = Generating(documents_contents, documents_names)
+    generating = Generating(documents_contents, documents_titles)
 
     # Generate a response using the Ollama model based on the query and the search results
     response = generating.generate_response_with_ollama(retrieving.query, retrieved_document)
