@@ -11,6 +11,3 @@ class Indexing:
         self.indexes.add(embed_documents)
         return self.indexes
     
-    def binary_indexing(self, indexes):
-        binary_index = pickle.dumps(indexes)
-        return binary_index
