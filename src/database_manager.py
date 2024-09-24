@@ -166,8 +166,10 @@ class DatabaseManager:
         if not documents_names:
             return []
         
+        documents_ids = self.__get_document_ids(documents_names)
+
         # Create the SQL query using the IN clause to search for multiple filenames
-        format_strings = ','.join(['%s'] * len(documents_names))  # Create placeholders for the query
+        format_strings = ','.join(['%s'] * len(documents_ids))  # Create placeholders for the query
         query = f"SELECT content FROM ingested_documents WHERE filename IN ({format_strings})"
         
         # Execute the query with the list of document names
@@ -180,4 +182,24 @@ class DatabaseManager:
         contents = [row[0] for row in rows]
         
         return contents
+    
+    # Method to retrieve all binary indices from the database
+    def load_all_indices(self):
+        query = "SELECT binary_indexing FROM indexed_contents"
+        
+        try:
+            # Execute the query
+            self.cursor.execute(query)
+            
+            # Fetch all the rows from the query result
+            rows = self.cursor.fetchall()
+            
+            # Extract the binary indexing from each row
+            indices = [row[0] for row in rows]
+            
+            return indices
+
+        except mysql.connector.Error as err:
+            print(f"Error retrieving indices: {err}")
+            return []
 
