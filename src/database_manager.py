@@ -51,6 +51,39 @@ class DatabaseManager:
             print(f"\n-> Documents and contents saved successfully!")
         except mysql.connector.Error as err:
             print(f"\n-> Error saving documents and contents: {err}")
+
+    # New method to save embeddings to the database
+    def save_embeddings(self, ingested_titles, binary_embeddings):
+        
+        documents_ids = self.__get_document_ids(ingested_titles)
+
+        query = """
+            INSERT INTO embedded_documents (loaded_document_id, content_type, tokenizer, model, normalizer, binary_embedding)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        
+        # Prepare data for batch insert
+        data = [
+            (
+                documents_ids[i],           # loaded_document_id
+                "full_content",             # Type of content
+                "all-MiniLM-L6-v2",         # Name of the tokenizer
+                "sentence-transformers",    # Name of the model
+                "L2-normalization",         # Normalization used
+                binary_embeddings[i]        # Binary embedding
+            )
+            for i in len(documents_ids)
+        ]
+
+        try:
+            self.cursor.executemany(query, data)
+            self.conn.commit()
+            print(f"\n-> Binary Embeddings saved successfully!")
+        except mysql.connector.Error as err:
+            print(f"\n-> Error saving Binary Embeddings: {err}")
+            self.conn.rollback()
+        finally:
+            self.cursor.close()
     
     # Method to read documents names from the database
     def load_documents_names(self):
@@ -89,5 +122,28 @@ class DatabaseManager:
         contents = [row[0] for row in rows]
         
         return contents
+    
+    def __get_document_ids(self, document_names):
+        # If the document_names list is empty, return an empty list
+        if not document_names:
+            return []
 
+        # Create the SQL query using the IN clause to search for multiple document names
+        format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
+        query = f"SELECT id FROM ingested_documents WHERE filename IN ({format_strings})"
+        
+        try:
+            # Execute the query with the list of document names
+            self.cursor.execute(query, document_names)
+            
+            # Fetch all document IDs from the result
+            rows = self.cursor.fetchall()
+            
+            # Extract only the IDs from the results
+            document_ids = [row[0] for row in rows]
+            
+            return document_ids
 
+        except mysql.connector.Error as err:
+            print(f"Error retrieving document IDs: {err}")
+            return []
