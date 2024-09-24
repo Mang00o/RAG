@@ -1,5 +1,4 @@
 import faiss
-import pickle
 
 class Indexing:
     def __init__(self, embedding_dimension):

@@ -1,8 +1,6 @@
 import faiss
 from transformers import AutoTokenizer, AutoModel
 import torch
-import pickle
-
 class Embedding:
     def __init__(self):
         # Load the embedding model and tokenizer
