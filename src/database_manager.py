@@ -36,7 +36,7 @@ class DatabaseManager:
     # Method to write document names and contents to the database
     def save_documents(self, document_names, document_contents):
         query = """
-            INSERT INTO loaded_documents (filename, content)
+            INSERT INTO ingested_documents (filename, content)
             VALUES (%s, %s)
             ON DUPLICATE KEY UPDATE content = VALUES(content)
         """
@@ -55,7 +55,7 @@ class DatabaseManager:
     # Method to read documents names from the database
     def load_documents_names(self):
         # SQL query to select all filenames from the loaded_documents table
-        query = "SELECT filename FROM loaded_documents"
+        query = "SELECT filename FROM ingested_documents"
         
         # Execute the query to retrieve the filenames
         self.cursor.execute(query)
@@ -77,7 +77,7 @@ class DatabaseManager:
         
         # Create the SQL query using the IN clause to search for multiple filenames
         format_strings = ','.join(['%s'] * len(documents_names))  # Create placeholders for the query
-        query = f"SELECT filename, content FROM loaded_documents WHERE filename IN ({format_strings})"
+        query = f"SELECT filename, content FROM ingested_documents WHERE filename IN ({format_strings})"
         
         # Execute the query with the list of document names
         self.cursor.execute(query, documents_names)
