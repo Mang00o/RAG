@@ -41,11 +41,11 @@ def main():
     # Extract text from pdf into the directory
     ingested_documents_titles, ingested_documentes_contents = ingesting.ingesting()
 
-    # Prints the names of the PDF documents from which it extracted the text
-    ingesting.print_ingested_documents()
-
     # Save ingested documents on DB
     db_manager.save_documents(ingested_documents_titles, ingested_documentes_contents)
+
+    # Prints the names of the PDF documents from which it extracted the text
+    ingesting.print_ingested_documents()
 
     documents_titles = db_documents_titles + ingested_documents_titles
 
@@ -61,7 +61,11 @@ def main():
     embedding = Embedding()
 
     # Pass document contents to get embeddings
-    embed_contents = embedding.embedding(documents_contents)
+    embed_contents = embedding.embedding(ingested_documentes_contents)
+
+    binary_embed = embedding.binary_embedding(embed_contents)
+
+    db_manager.save_embeddings(ingested_documents_titles,binary_embed)       ##change to ingested
     
     print("\n-> Documents embedded successfully!")
     
