@@ -2,7 +2,7 @@ import pickle
 
 class BinaryConverter:
     # Method for returning the binary text of a text
-    def binary_embedding(self, text):
+    def binary_text(self, text):
         # Convert text to binary 
         binary_text = pickle.dumps(text)
         return binary_text
