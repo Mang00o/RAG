@@ -38,19 +38,12 @@ class DatabaseManager:
         query = """
             INSERT INTO ingested_documents (filename, content)
             VALUES (%s, %s)
-            ON DUPLICATE KEY UPDATE content = VALUES(content)
         """
         
         # Create a list of tuples with (document_name, document_content)
         data = [(document_names[i], document_contents[i]) for i in range(len(document_names))]
         
-        try:
-            # Execute a batch insert/update in a single call
-            self.cursor.executemany(query, data)
-            self.conn.commit()  # Commit changes to the database
-            print(f"\n-> Documents and contents saved successfully!")
-        except mysql.connector.Error as err:
-            print(f"\n-> Error saving documents and contents: {err}")
+        self.__write_to_db(query, data, "Documents and contents")
 
     # New method to save embeddings to the database
     def save_embeddings(self, ingested_titles, binary_embeddings):
@@ -75,16 +68,43 @@ class DatabaseManager:
             for i in range(len(documents_ids))
         ]
 
-        try:
-            self.cursor.executemany(query, data)
-            self.conn.commit()
-            print(f"\n-> Binary Embeddings saved successfully!")
-        except mysql.connector.Error as err:
-            print(f"\n-> Error saving Binary Embeddings: {err}")
-            self.conn.rollback()
-        finally:
-            self.cursor.close()
+        self.__write_to_db(query, data, "Binary Embedding")
     
+    def __write_to_db(self, query, data, object_description):
+        try:
+            # Execute a batch insert/update in a single call
+            self.cursor.executemany(query, data)
+            self.conn.commit()  # Commit changes to the database
+            print(f"\n-> {object_description} saved successfully!")
+        except mysql.connector.Error as err:
+            print(f"\n-> Error saving {object_description}: {err}")
+            self.conn.rollback()  # Rollback in case of error
+
+    def __get_document_ids(self, document_names):
+        # If the document_names list is empty, return an empty list
+        if not document_names:
+            return []
+
+        # Create the SQL query using the IN clause to search for multiple document names
+        format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
+        query = f"SELECT id FROM ingested_documents WHERE filename IN ({format_strings})"
+        
+        try:
+            # Execute the query with the list of document names
+            self.cursor.execute(query, document_names)
+            
+            # Fetch all document IDs from the result
+            rows = self.cursor.fetchall()
+            
+            # Extract only the IDs from the results
+            document_ids = [row[0] for row in rows]
+            
+            return document_ids
+
+        except mysql.connector.Error as err:
+            print(f"Error retrieving document IDs: {err}")
+            return []
+
     # Method to read documents names from the database
     def load_documents_names(self):
         # SQL query to select all filenames from the loaded_documents table
@@ -122,28 +142,4 @@ class DatabaseManager:
         contents = [row[0] for row in rows]
         
         return contents
-    
-    def __get_document_ids(self, document_names):
-        # If the document_names list is empty, return an empty list
-        if not document_names:
-            return []
 
-        # Create the SQL query using the IN clause to search for multiple document names
-        format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
-        query = f"SELECT id FROM ingested_documents WHERE filename IN ({format_strings})"
-        
-        try:
-            # Execute the query with the list of document names
-            self.cursor.execute(query, document_names)
-            
-            # Fetch all document IDs from the result
-            rows = self.cursor.fetchall()
-            
-            # Extract only the IDs from the results
-            document_ids = [row[0] for row in rows]
-            
-            return document_ids
-
-        except mysql.connector.Error as err:
-            print(f"Error retrieving document IDs: {err}")
-            return []
