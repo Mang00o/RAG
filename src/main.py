@@ -65,7 +65,7 @@ def main():
 
     binary_embed = embedding.binary_embedding(embed_contents)
 
-    db_manager.save_embeddings(ingested_documents_titles,binary_embed)       ##change to ingested
+    db_manager.save_embeddings(ingested_documents_titles,binary_embed)
     
     print("\n-> Documents embedded successfully!")
     
@@ -78,6 +78,10 @@ def main():
 
     # Add the document embeddings to the FAISS index for efficient similarity search
     indexes = indexing.add(embed_contents)
+
+    binary_index = indexing.binary_indexing(indexes)
+
+    db_manager.save_indexings(documents_titles,binary_index)
 
     print("\n-> Documents indexed successfully!")
 
