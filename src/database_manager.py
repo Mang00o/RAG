@@ -35,18 +35,32 @@ class DatabaseManager:
 
     # Method to write document names and contents to the database
     def save_documents(self, document_names, document_contents):
+        if not document_names:
+            print("\n-> No documents to save.")
+            return  # Exit if lists are empty
+        
         query = """
             INSERT INTO ingested_documents (filename, content)
             VALUES (%s, %s)
         """
 
         # Create a list of tuples with (document_name, document_content)
-        data = [(document_names[i], document_contents[i]) for i in range(len(document_names))]
+        data = [
+            (
+                document_names[i], 
+                document_contents[i]
+            ) 
+            for i in range(len(document_names))
+        ]
         
         self.__write_to_db(query, data, "Documents and contents")
 
     # Method to save embeddings to the database
     def save_embeddings(self, ingested_titles, binary_embeddings):
+        if not ingested_titles:
+            print("\n-> No embeddings to save.")
+            return  # Exit if lists are empty
+        
         query = """
             INSERT INTO embedded_documents (loaded_document_id, content_type, tokenizer, model, normalizer, binary_embedding)
             VALUES (%s, %s, %s, %s, %s, %s)
@@ -71,6 +85,10 @@ class DatabaseManager:
 
     # Method to save indexings to the database
     def save_indexings(self, ingested_titles, binary_indexings):
+        if not ingested_titles:
+            print("\n-> No indexings to save.")
+            return  # Exit if lists are empty
+        
         query = """
             INSERT INTO indexed_contents (embedded_document_id, dimension, index_algorithm, binary_indexing)
             VALUES (%s, %s, %s, %s)
