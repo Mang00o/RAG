@@ -1,6 +1,7 @@
 import faiss
 from transformers import AutoTokenizer, AutoModel
 import torch
+import pickle
 
 class Embedding:
     def __init__(self):
@@ -21,3 +22,9 @@ class Embedding:
         faiss.normalize_L2(embeddings)
 
         return embeddings
+    
+    # Method for returning the binary embedding of an embedded text
+    def binary_embedding(self, embed_text):
+        # Convert embedding to binary 
+        binary_embedding = pickle.dumps(embed_text)
+        return binary_embedding
