@@ -39,22 +39,21 @@ class DatabaseManager:
             INSERT INTO ingested_documents (filename, content)
             VALUES (%s, %s)
         """
-        
+
         # Create a list of tuples with (document_name, document_content)
         data = [(document_names[i], document_contents[i]) for i in range(len(document_names))]
         
         self.__write_to_db(query, data, "Documents and contents")
 
-    # New method to save embeddings to the database
+    # Method to save embeddings to the database
     def save_embeddings(self, ingested_titles, binary_embeddings):
-        
-        documents_ids = self.__get_document_ids(ingested_titles)
-
         query = """
             INSERT INTO embedded_documents (loaded_document_id, content_type, tokenizer, model, normalizer, binary_embedding)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
         
+        documents_ids = self.__get_document_ids(ingested_titles)
+
         # Prepare data for batch insert
         data = [
             (
@@ -69,6 +68,27 @@ class DatabaseManager:
         ]
 
         self.__write_to_db(query, data, "Binary Embedding")
+
+    # Method to save indexings to the database
+    def save_indexings(self, ingested_titles, binary_indexings):
+        query = """
+            INSERT INTO indexed_contents (embedded_document_id, dimension, index_algorithm, binary_indexing)
+            VALUES (%s, %s, %s, %s)
+        """
+
+        documents_ids = self.__get_document_ids(ingested_titles)
+
+        data = [
+            (
+                documents_ids[i],       # loaded_document_id
+                384,                    # indexing dimension
+                "IndexFlatL2",          # Indexing algorith used
+                binary_indexings[i]     # Binary Indexing
+            )
+            for i in range(len(documents_ids))
+        ]
+
+        self.__write_to_db(query, data, "Binary Indexing")
     
     def __write_to_db(self, query, data, object_description):
         try:
