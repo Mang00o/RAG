@@ -77,7 +77,7 @@ class DatabaseManager:
         
         # Create the SQL query using the IN clause to search for multiple filenames
         format_strings = ','.join(['%s'] * len(documents_names))  # Create placeholders for the query
-        query = f"SELECT filename, content FROM ingested_documents WHERE filename IN ({format_strings})"
+        query = f"SELECT content FROM ingested_documents WHERE filename IN ({format_strings})"
         
         # Execute the query with the list of document names
         self.cursor.execute(query, documents_names)
@@ -85,11 +85,8 @@ class DatabaseManager:
         # Fetch all the rows from the result
         rows = self.cursor.fetchall()
         
-        # Create a dictionary to map filenames to content
-        content_dict = {row[0]: row[1] for row in rows}
-        
-        # Return the content in the same order as the document_names list
-        contents = [content_dict.get(name, None) for name in documents_names]
+        # Extract only the content from each row and return it
+        contents = [row[0] for row in rows]
         
         return contents
 
