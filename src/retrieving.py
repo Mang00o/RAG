@@ -2,23 +2,12 @@ import re
 from embedding import Embedding
 
 class Retrieving:
-    def __init__(self, pdf_filenames, pdfs_content, indexes):
+    def __init__(self, pdf_filenames, pdfs_content, indexes, query):
         # Save document embeddings, file names, document texts, and FAISS indexes
         self.pdf_filenames = pdf_filenames
         self.pdfs_content = pdfs_content  # This should contain the raw text of the documents
         self.indexes = indexes
-
-        # Prompt the user for the query during object initialization
-        self.query = input("\n-> Enter the query to search for relevant documents: ")
-
-    def define_k(self):
-        # Define const numner of documents to retrieve
-        DOCUMENTS_TO_RETRIEVE = 5
-
-        # Define value of variable k
-        k = min(DOCUMENTS_TO_RETRIEVE, len(self.pdf_filenames)) # 'k' indicates the number of documents to retrieve
-
-        return k
+        self.query = query
     
     # Boost documents that contain the query keyword using the raw document text
     def boost_keyword_relevance(self, query, embedding_results):
@@ -51,10 +40,10 @@ class Retrieving:
     def search_documents(self):
         embedding = Embedding()
         
-        query_embedding = embedding.embed_contents([self.query])
+        query_embedding = embedding.embedding([self.query])
         
         # Search the FAISS indexes for the documents closest to the query embedding
-        distances, indices = self.indexes.search(query_embedding, self.define_k())
+        distances, indices = self.indexes.search(query_embedding, self.__define_k())
 
         # Retrieve the most relevant documents and their distances
         results = [(self.pdf_filenames[i], distances[0][idx]) for idx, i in enumerate(indices[0])]
@@ -62,6 +51,15 @@ class Retrieving:
         # Apply keyword relevance boost using the raw text
         boosted_results = self.boost_keyword_relevance(self.query, results)
         return boosted_results
+    
+    def __define_k(self):
+        # Define const numner of documents to retrieve
+        DOCUMENTS_TO_RETRIEVE = 5
+
+        # Define value of variable k
+        k = min(DOCUMENTS_TO_RETRIEVE, len(self.pdf_filenames)) # 'k' indicates the number of documents to retrieve
+
+        return k
 
     def print_relevant_documents(self, result):
         # Print the header for the relevant documents
