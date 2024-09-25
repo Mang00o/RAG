@@ -34,13 +34,13 @@ class DatabaseManager:
         print("\n-> Connection closed.")
 
     # Method to write document names and contents to the database
-    def save_documents(self, document_names, document_contents):
+    def save_documents_ingestions(self, document_names, document_contents):
         if not document_names:
             print("\n-> No documents to save.")
             return  # Exit if lists are empty
         
         query = """
-            INSERT INTO ingested_documents (filename, content)
+            INSERT INTO ingested_documents (document_name, document_text)
             VALUES (%s, %s)
         """
 
@@ -56,17 +56,17 @@ class DatabaseManager:
         self.__write_to_db(query, data, "Documents and contents")
 
     # Method to save embeddings to the database
-    def save_embeddings(self, ingested_titles, binary_embeddings):
-        if not ingested_titles:
+    def save_contents_embeddings(self, ingested_documents_names, binary_contents_embeddings):
+        if not ingested_documents_names:
             print("\n-> No embeddings to save.")
             return  # Exit if lists are empty
         
         query = """
-            INSERT INTO embedded_documents (loaded_document_id, content_type, tokenizer, model, normalizer, binary_embedding)
+            INSERT INTO embedded_contents (ingested_document_id, content_type, tokenizer, model, normalizer, binary_embedding)
             VALUES (%s, %s, %s, %s, %s, %s)
         """
         
-        documents_ids = self.__get_document_ids(ingested_titles)
+        documents_ids = self.__get_ingested_documents_ids(ingested_documents_names)
 
         # Prepare data for batch insert
         data = [
@@ -76,7 +76,7 @@ class DatabaseManager:
                 "all-MiniLM-L6-v2",         # Name of the tokenizer
                 "sentence-transformers",    # Name of the model
                 "L2-normalization",         # Normalization used
-                binary_embeddings[i]        # Binary embedding
+                binary_contents_embeddings[i]        # Binary embedding
             )
             for i in range(len(documents_ids))
         ]
@@ -84,8 +84,8 @@ class DatabaseManager:
         self.__write_to_db(query, data, "Binary Embedding")
 
     # Method to save indexings to the database
-    def save_indexings(self, ingested_titles, binary_indexings):
-        if not ingested_titles:
+    def save_indexings(self, embedded_contents, binary_indexings):
+        if not embedded_contents.size():
             print("\n-> No indexings to save.")
             return  # Exit if lists are empty
         
@@ -94,16 +94,16 @@ class DatabaseManager:
             VALUES (%s, %s, %s, %s)
         """
 
-        documents_ids = self.__get_document_ids(ingested_titles)
+        contents_ids = self.__get_embedded_contents_ids(embedded_contents)
 
         data = [
             (
-                documents_ids[i],       # loaded_document_id
+                contents_ids[i],        # loaded_document_id
                 384,                    # indexing dimension
                 "IndexFlatL2",          # Indexing algorith used
                 binary_indexings[i]     # Binary Indexing
             )
-            for i in range(len(documents_ids))
+            for i in range(len(contents_ids))
         ]
 
         self.__write_to_db(query, data, "Binary Indexing")
@@ -118,14 +118,14 @@ class DatabaseManager:
             print(f"\n-> Error saving {object_description}: {err}")
             self.conn.rollback()  # Rollback in case of error
 
-    def __get_document_ids(self, document_names):
+    def __get_ingested_documents_ids(self, document_names):
         # If the document_names list is empty, return an empty list
         if not document_names:
             return []
 
         # Create the SQL query using the IN clause to search for multiple document names
         format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
-        query = f"SELECT id FROM ingested_documents WHERE filename IN ({format_strings})"
+        query = f"SELECT id FROM ingested_documents WHERE document_name IN ({format_strings})"
         
         try:
             # Execute the query with the list of document names
@@ -142,11 +142,36 @@ class DatabaseManager:
         except mysql.connector.Error as err:
             print(f"Error retrieving document IDs: {err}")
             return []
+        
+    def __get_embedded_contents_ids(self, ingested_contents):
+        # If the ingested_contents list is empty, return an empty list
+        if not ingested_contents:
+            return []
+        
+        # Create the SQL query using the IN clause to search for multiple document names
+        format_strings = ','.join(['%s'] * len(ingested_contents))  # Create placeholders for the query
+        query = f"SELECT id FROM embedded_contents WHERE document_name IN ({format_strings})"
+
+        try:
+            # Execute the query with the list of ingested content
+            self.cursor.execute(query, ingested_contents)
+            
+            # Fetch all content IDs from the result
+            rows = self.cursor.fetchall()
+            
+            # Extract only the IDs from the results
+            contents_ids = [row[0] for row in rows]
+            
+            return contents_ids
+
+        except mysql.connector.Error as err:
+            print(f"Error retrieving content IDs: {err}")
+            return []
 
     # Method to read documents names from the database
     def load_documents_names(self):
         # SQL query to select all filenames from the loaded_documents table
-        query = "SELECT filename FROM ingested_documents"
+        query = "SELECT document_name FROM ingested_documents"
         
         # Execute the query to retrieve the filenames
         self.cursor.execute(query)
@@ -166,11 +191,11 @@ class DatabaseManager:
         if not documents_names:
             return []
         
-        documents_ids = self.__get_document_ids(documents_names)
+        documents_ids = self.__get_ingested_documents_ids(documents_names)
 
         # Create the SQL query using the IN clause to search for multiple filenames
         format_strings = ','.join(['%s'] * len(documents_ids))  # Create placeholders for the query
-        query = f"SELECT content FROM ingested_documents WHERE filename IN ({format_strings})"
+        query = f"SELECT document_text FROM ingested_documents WHERE document_name IN ({format_strings})"
         
         # Execute the query with the list of document names
         self.cursor.execute(query, documents_names)
