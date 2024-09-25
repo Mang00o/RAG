@@ -54,46 +54,53 @@ def main():
 
     print("\n-> Documents ingested successfully!")
 
-    #########################################
-    #           PHASE 2 ~ EMBEDDING         #
-    #########################################
+    if ingested_documents_titles:
+        #########################################
+        #           PHASE 2 ~ EMBEDDING         #
+        #########################################
 
-    bi_converter = BinaryConverter()
+        bi_converter = BinaryConverter()
 
-    # Creates an instance of the Embedding class
-    embedding = Embedding()
+        # Creates an instance of the Embedding class
+        embedding = Embedding()
 
-    # Pass document contents to get embeddings
-    embed_contents = embedding.embedding(documents_contents)
+        # Pass document contents to get embeddings
+        embed_contents = embedding.embedding(ingested_documentes_contents)
 
-    binary_embed = bi_converter.binary_text(embed_contents)
+        binary_embed = bi_converter.binary_text(embed_contents)
 
-    db_manager.save_embeddings(ingested_documents_titles,binary_embed)
-    
-    print("\n-> Documents embedded successfully!")
-    
-    #########################################
-    #           PHASE 3 ~ INDEXING          #
-    #########################################
+        db_manager.save_embeddings(ingested_documents_titles,binary_embed)
+        
+        print("\n-> Documents embedded successfully!")
+        
+        #########################################
+        #           PHASE 3 ~ INDEXING          #
+        #########################################
 
-    # Creates an instance of the Indexing class
-    indexing = Indexing(embed_contents.shape[1])
+        # Creates an instance of the Indexing class
+        indexing = Indexing(embed_contents.shape[1])
 
-    # Add the document embeddings to the FAISS index for efficient similarity search
-    indexes = indexing.add(embed_contents)
-    
-    binary_indexes = bi_converter.binary_text(indexes)
+        # Add the document embeddings to the FAISS index for efficient similarity search
+        indexes = indexing.add(embed_contents)
+        
+        binary_indexes = bi_converter.binary_text(indexes)
 
-    db_manager.save_indexings(documents_titles,binary_indexes)
+        db_manager.save_indexings(ingested_documentes_contents,binary_indexes)
 
-    print("\n-> Documents indexed successfully!")
+        print("\n-> Documents indexed successfully!")
+    else:
+        print("Embedding and Indexing already saved")
  
     #########################################
     #           PHASE 4 ~ RETRIEVING        #
     #########################################
 
+    document_indexes = db_manager.load_all_indices()
+
+    query = input("\n-> Enter the query to search for relevant documents: ")
+
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(documents_titles, documents_contents, indexes)
+    retrieving = Retrieving(documents_titles, documents_contents, document_indexes, query)
 
     # Perform a search for the top k most relevant documents based on the query embedding
     retrieved_document = retrieving.search_documents()  
