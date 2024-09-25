@@ -1,6 +1,7 @@
 from prittier import frame_text
 from warning import manage_warning
 from database_manager import DatabaseManager
+from binary_converter import BinaryConverter
 from ingesting import Ingesting
 from embedding import Embedding
 from indexing import Indexing
@@ -57,13 +58,15 @@ def main():
     #           PHASE 2 ~ EMBEDDING         #
     #########################################
 
+    bi_converter = BinaryConverter()
+
     # Creates an instance of the Embedding class
     embedding = Embedding()
 
     # Pass document contents to get embeddings
-    embed_contents = embedding.embedding(ingested_documentes_contents)
+    embed_contents = embedding.embedding(documents_contents)
 
-    binary_embed = embedding.binary_embedding(embed_contents)
+    binary_embed = bi_converter.binary_text(embed_contents)
 
     db_manager.save_embeddings(ingested_documents_titles,binary_embed)
     
@@ -78,13 +81,13 @@ def main():
 
     # Add the document embeddings to the FAISS index for efficient similarity search
     indexes = indexing.add(embed_contents)
+    
+    binary_indexes = bi_converter.binary_text(indexes)
 
-    binary_index = indexing.binary_indexing(indexes)
-
-    db_manager.save_indexings(documents_titles,binary_index)
+    db_manager.save_indexings(documents_titles,binary_indexes)
 
     print("\n-> Documents indexed successfully!")
-
+ 
     #########################################
     #           PHASE 4 ~ RETRIEVING        #
     #########################################
