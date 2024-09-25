@@ -27,7 +27,7 @@ def main():
     db_manager.connect()
 
     # Read documents names from the database
-    db_documents_titles = db_manager.load_documents_names()
+    db_documents_names = db_manager.load_documents_names()
 
     #########################################
     #           PHASE 1 ~ INGESTING         #
@@ -37,24 +37,24 @@ def main():
     directory = "documents"
 
     # Create a Retriving instance
-    ingesting = Ingesting(directory, db_documents_titles)
+    ingesting = Ingesting(directory, db_documents_names)
 
     # Extract text from pdf into the directory
-    ingested_documents_titles, ingested_documentes_contents = ingesting.ingesting()
+    ingested_documents_names, ingested_documentes_texts = ingesting.ingesting()
 
     # Save ingested documents on DB
-    db_manager.save_documents(ingested_documents_titles, ingested_documentes_contents)
+    db_manager.save_documents_ingestions(ingested_documents_names, ingested_documentes_texts)
 
     # Prints the names of the PDF documents from which it extracted the text
     ingesting.print_ingested_documents()
 
-    documents_titles = db_documents_titles + ingested_documents_titles
+    documents_names = db_documents_names + ingested_documents_names
 
-    documents_contents = db_manager.load_documents_contents(db_documents_titles) + ingested_documentes_contents
+    documents_texts = db_manager.load_documents_contents(db_documents_names) + ingested_documentes_texts
 
     print("\n-> Documents ingested successfully!")
 
-    if ingested_documents_titles:
+    if ingested_documents_names:
         #########################################
         #           PHASE 2 ~ EMBEDDING         #
         #########################################
@@ -65,11 +65,11 @@ def main():
         embedding = Embedding()
 
         # Pass document contents to get embeddings
-        embed_contents = embedding.embedding(ingested_documentes_contents)
+        embedded_contents = embedding.embedding(ingested_documentes_texts)
 
-        binary_embed = bi_converter.binary_text(embed_contents)
+        binary_embeddings = bi_converter.binary_text(embedded_contents)
 
-        db_manager.save_embeddings(ingested_documents_titles,binary_embed)
+        db_manager.save_contents_embeddings(ingested_documents_names,binary_embeddings)
         
         print("\n-> Documents embedded successfully!")
         
@@ -78,14 +78,14 @@ def main():
         #########################################
 
         # Creates an instance of the Indexing class
-        indexing = Indexing(embed_contents.shape[1])
+        indexing = Indexing(embedded_contents.shape[1])
 
         # Add the document embeddings to the FAISS index for efficient similarity search
-        indexes = indexing.add(embed_contents)
+        contents_indexes = indexing.add(embedded_contents)
         
-        binary_indexes = bi_converter.binary_text(indexes)
+        binary_indexes = bi_converter.binary_text(contents_indexes)
 
-        db_manager.save_indexings(ingested_documentes_contents,binary_indexes)
+        db_manager.save_indexings(embedded_contents,binary_indexes)
 
         print("\n-> Documents indexed successfully!")
     else:
@@ -95,12 +95,12 @@ def main():
     #           PHASE 4 ~ RETRIEVING        #
     #########################################
 
-    document_indexes = db_manager.load_all_indices()
+    documents_indexes = db_manager.load_all_indices()
 
     query = input("\n-> Enter the query to search for relevant documents: ")
 
     # Creates an instance of the Retrieving class
-    retrieving = Retrieving(documents_titles, documents_contents, document_indexes, query)
+    retrieving = Retrieving(documents_names, documents_texts, documents_indexes, query)
 
     # Perform a search for the top k most relevant documents based on the query embedding
     retrieved_document = retrieving.search_documents()  
@@ -115,7 +115,7 @@ def main():
     #########################################
     
     # Create an instance of the Generating class with the PDF texts and filenames
-    generating = Generating(documents_contents, documents_titles)
+    generating = Generating(documents_texts, documents_names)
 
     # Generate a response using the Ollama model based on the query and the search results
     response = generating.generate_response_with_ollama(retrieving.query, retrieved_document)
