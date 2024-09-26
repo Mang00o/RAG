@@ -1,4 +1,5 @@
 import pickle
+import faiss
 
 class BinaryConverter:
     # Method for returning the binary text of a text
@@ -12,3 +13,8 @@ class BinaryConverter:
         # Convert binary text back to normal text
         text = pickle.loads(binary_text)
         return text
+    
+    def binary_indexes(self, contents_indexes):
+        # Serializza l'indice FAISS in un formato binario
+        binary_index = faiss.serialize_index(contents_indexes)
+        return binary_index
