@@ -52,8 +52,6 @@ def main():
 
     documents_texts = db_manager.load_documents_contents(db_documents_names) + ingested_documentes_texts
 
-    print("\n-> Documents ingested successfully!")
-
     if ingested_documents_names:
         #########################################
         #           PHASE 2 ~ EMBEDDING         #
@@ -71,8 +69,6 @@ def main():
 
         db_manager.save_contents_embeddings(ingested_documents_names,binary_embeddings)
         
-        print("\n-> Documents embedded successfully!")
-        
         #########################################
         #           PHASE 3 ~ INDEXING          #
         #########################################
@@ -86,10 +82,9 @@ def main():
         binary_indexes = bi_converter.binary_text(contents_indexes)
 
         db_manager.save_indexings(embedded_contents,binary_indexes)
-
-        print("\n-> Documents indexed successfully!")
     else:
-        print("Embedding and Indexing already saved")
+        print("\n-> Embedding already saved")
+        print("\n-> Indexing already saved")
  
     #########################################
     #           PHASE 4 ~ RETRIEVING        #

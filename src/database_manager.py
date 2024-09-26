@@ -36,7 +36,6 @@ class DatabaseManager:
     # Method to write document names and contents to the database
     def save_documents_ingestions(self, document_names, document_contents):
         if not document_names:
-            print("\n-> No documents to save.")
             return  # Exit if lists are empty
         
         query = """
