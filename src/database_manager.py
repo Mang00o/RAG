@@ -84,17 +84,18 @@ class DatabaseManager:
         self.__write_to_db(query, data, "Binary Embedding")
 
     # Method to save indexings to the database
-    def save_indexings(self, embedded_contents, binary_indexings):
-        if not embedded_contents.size():
+    def save_indexings(self, ingested_documents_names, binary_indexings):
+        if not ingested_documents_names:
             print("\n-> No indexings to save.")
             return  # Exit if lists are empty
         
         query = """
-            INSERT INTO indexed_contents (embedded_document_id, dimension, index_algorithm, binary_indexing)
+            INSERT INTO indexed_contents (embedded_content_id, dimension, index_algorithm, binary_indexing)
             VALUES (%s, %s, %s, %s)
         """
 
-        contents_ids = self.__get_embedded_contents_ids(embedded_contents)
+        contents_ids = self.__get_embedded_contents_ids(ingested_documents_names)
+        print(contents_ids)
 
         data = [
             (
@@ -143,22 +144,29 @@ class DatabaseManager:
             print(f"Error retrieving document IDs: {err}")
             return []
         
-    def __get_embedded_contents_ids(self, ingested_contents):
-        # If the ingested_contents list is empty, return an empty list
-        if not ingested_contents:
+    def __get_embedded_contents_ids(self, document_names):
+        # If the document_names list is empty, return an empty list
+        if not document_names:
             return []
-        
-        # Create the SQL query using the IN clause to search for multiple document names
-        format_strings = ','.join(['%s'] * len(ingested_contents))  # Create placeholders for the query
-        query = f"SELECT id FROM embedded_contents WHERE document_name IN ({format_strings})"
 
+        # Create the SQL query using the IN clause to search for multiple document names
+        format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
+
+        query = f"""
+            SELECT id 
+            FROM embedded_contents 
+            WHERE ingested_document_id IN (
+                SELECT id 
+                FROM ingested_documents 
+                WHERE document_name IN ({format_strings})
+            )
+        """
+        
         try:
-            # Execute the query with the list of ingested content
-            self.cursor.execute(query, ingested_contents)
-            
+            # Execute the query with the list of document names
+            self.cursor.execute(query, document_names)
             # Fetch all content IDs from the result
             rows = self.cursor.fetchall()
-            
             # Extract only the IDs from the results
             contents_ids = [row[0] for row in rows]
             
