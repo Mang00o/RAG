@@ -14,7 +14,8 @@ class BinaryConverter:
         text = pickle.loads(binary_text)
         return text
     
-    def binary_indexes(self, contents_indexes):
+    def binary_indexes_bytes(self, contents_indexes):
         # Serializza l'indice FAISS in un formato binario
-        binary_index = faiss.serialize_index(contents_indexes)
-        return binary_index
+        binary_indexes = faiss.serialize_index(contents_indexes)
+        binary_indexes_bytes = bytes(binary_indexes)
+        return binary_indexes_bytes
