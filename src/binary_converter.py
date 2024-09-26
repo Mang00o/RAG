@@ -16,11 +16,31 @@ class BinaryConverter:
         return text
     
     def binary_indexes_bytes(self, contents_indexes):
-        # Serializza l'indice FAISS in un formato binario
+        # Serialize the FAISS index into a binary format (returns numpy array of uint8)
         binary_indexes = faiss.serialize_index(contents_indexes)
-        binary_indexes_bytes = bytes(binary_indexes)
+        # Convert the numpy array to bytes
+        binary_indexes_bytes = binary_indexes.tobytes()
+        
+        # Debug: stampare i primi 100 byte per vedere se sono completi
+        print(f"Serialized index length: {len(binary_indexes_bytes)}, Data: {binary_indexes_bytes[:100]}")
+    
         return binary_indexes_bytes
     
-    def normal_indexes(self, binary_indexes_bytes):
-        normal_indexes = faiss.deserialize_index(np.frombuffer(binary_indexes_bytes, dtype=np.uint8))
+    def normal_indexes(self, binary_indexes_list):
+        normal_indexes = []
+        
+        for binary_index in binary_indexes_list:
+            # Print the binary data before deserializing
+            print(f"Binary index (length: {len(binary_index)}):", binary_index[:50])  # Print the first 50 bytes for debugging
+            
+            # Convert the bytes back to a numpy array
+            binary_indexes_np = np.frombuffer(binary_index, dtype=np.uint8)
+            
+            # Deserialize the numpy array back into a FAISS index
+            try:
+                index = faiss.deserialize_index(binary_indexes_np)
+                normal_indexes.append(index)
+            except Exception as e:
+                print(f"Failed to deserialize index: {e}")
+        
         return normal_indexes
