@@ -1,16 +1,36 @@
 import re
-from embedding import Embedding
 
 class Retrieving:
-    def __init__(self, pdf_filenames, pdfs_content, indexes, query):
+    def __init__(self, documents_names, documents_texts, indexes, embedded_query):
         # Save document embeddings, file names, document texts, and FAISS indexes
-        self.pdf_filenames = pdf_filenames
-        self.pdfs_content = pdfs_content  # This should contain the raw text of the documents
+        self.documents_names = documents_names
+        self.documents_texts = documents_texts  # This should contain the raw text of the documents
         self.indexes = indexes
-        self.query = query
+        self.embedded_query = embedded_query
+
+    # Function to search for relevant documents based on a query
+    def search_documents(self):       
+        # Search the FAISS indexes for the documents closest to the query embedding
+        distances, indices = self.indexes.search(self.embedded_query, self.__define_k())
+
+        # Retrieve the most relevant documents and their distances
+        results = [(self.documents_names[i], distances[0][idx]) for idx, i in enumerate(indices[0])]
+
+        # Apply keyword relevance boost using the raw text
+        boosted_results = self.__boost_keyword_relevance(self.embedded_query, results)
+        return boosted_results
+    
+    def __define_k(self):
+        # Define const numner of documents to retrieve
+        DOCUMENTS_TO_RETRIEVE = 5
+
+        # Define value of variable k
+        k = min(DOCUMENTS_TO_RETRIEVE, len(self.documents_names)) # 'k' indicates the number of documents to retrieve
+
+        return k
     
     # Boost documents that contain the query keyword using the raw document text
-    def boost_keyword_relevance(self, query, embedding_results):
+    def __boost_keyword_relevance(self, query, embedding_results):
         boosted_results = []
         query = query.lower()
 
@@ -19,7 +39,7 @@ class Retrieving:
 
         for idx, (doc_name, distance) in enumerate(embedding_results):
             # Check the extracted text
-            doc_text = self.pdfs_content[idx].lower()
+            doc_text = self.documents_texts[idx].lower()
 
             # Search for query in text using regex
             relevance = len(query_regex.findall(doc_text))
@@ -35,31 +55,6 @@ class Retrieving:
         # Sort results by adjusted distance
         boosted_results.sort(key=lambda x: x[1])
         return boosted_results
-
-    # Function to search for relevant documents based on a query
-    def search_documents(self):
-        embedding = Embedding()
-        
-        query_embedding = embedding.embedding([self.query])
-        
-        # Search the FAISS indexes for the documents closest to the query embedding
-        distances, indices = self.indexes.search(query_embedding, self.__define_k())
-
-        # Retrieve the most relevant documents and their distances
-        results = [(self.pdf_filenames[i], distances[0][idx]) for idx, i in enumerate(indices[0])]
-
-        # Apply keyword relevance boost using the raw text
-        boosted_results = self.boost_keyword_relevance(self.query, results)
-        return boosted_results
-    
-    def __define_k(self):
-        # Define const numner of documents to retrieve
-        DOCUMENTS_TO_RETRIEVE = 5
-
-        # Define value of variable k
-        k = min(DOCUMENTS_TO_RETRIEVE, len(self.pdf_filenames)) # 'k' indicates the number of documents to retrieve
-
-        return k
 
     def print_relevant_documents(self, result):
         # Print the header for the relevant documents
