@@ -83,17 +83,13 @@ class DatabaseManager:
         self.__write_to_db(query, data, "Binary Embedding")
 
     # Method to save indexings to the database
-    def save_indexings(self, ingested_documents_names, binary_indexings):
-        if not ingested_documents_names:
-            print("\n-> No indexings to save.")
-            return  # Exit if lists are empty
-        
+    def save_indexings(self, document_names, binary_indexings):
         query = """
             INSERT INTO indexed_contents (embedded_content_id, dimension, index_algorithm, binary_indexing)
             VALUES (%s, %s, %s, %s)
         """
 
-        contents_ids = self.__get_embedded_contents_ids(ingested_documents_names)
+        contents_ids = self.__get_embedded_contents_ids(document_names)
 
         data = [
             (
@@ -143,10 +139,6 @@ class DatabaseManager:
             return []
         
     def __get_embedded_contents_ids(self, document_names):
-        # If the document_names list is empty, return an empty list
-        if not document_names:
-            return []
-
         # Create the SQL query using the IN clause to search for multiple document names
         format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
 
