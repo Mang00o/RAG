@@ -95,7 +95,6 @@ class DatabaseManager:
         """
 
         contents_ids = self.__get_embedded_contents_ids(ingested_documents_names)
-        print(contents_ids)
 
         data = [
             (
