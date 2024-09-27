@@ -80,6 +80,7 @@ def main():
         contents_indexes = indexing.add(embedded_contents)
         
         binary_indexes_bytes = bi_converter.binary_indexes_bytes(contents_indexes)
+        print(f"Serialized index length: {len(binary_indexes_bytes)}, Data: {binary_indexes_bytes[:100]}")  # Stampa i primi 100 byte
 
         db_manager.save_indexings(ingested_documents_names,binary_indexes_bytes)
     else:
@@ -91,6 +92,8 @@ def main():
     #########################################
 
     binary_indexes_bytes = db_manager.load_all_indices()
+    for i, index in enumerate(binary_indexes_bytes):
+        print(f"Index {i}, length: {len(index)} bytes")  # Controlla la lunghezza di ciascun indice recuperato
 
     indexes = bi_converter.normal_indexes(binary_indexes_bytes)
 

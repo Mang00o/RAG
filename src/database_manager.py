@@ -220,6 +220,10 @@ class DatabaseManager:
             # Extract the binary indexing from each row
             indices = [row[0] for row in rows]
             
+            # Log the length of each binary index
+            for i, index in enumerate(indices):
+                print(f"Index {i}, length: {len(index)} bytes")  # Controlla la lunghezza di ciascun indice
+
             return indices
 
         except mysql.connector.Error as err:
