@@ -20,10 +20,9 @@ class BinaryConverter:
         binary_indexes = faiss.serialize_index(contents_indexes)
         # Convert the numpy array to bytes
         binary_indexes_bytes = binary_indexes.tobytes()
+        print("\n Conversione in binario nella classe binary_converter")
+        print(f"Lunghezza inidic binari in main: {len(binary_indexes_bytes)}")  # Stampa i primi 100 byte 
         
-        # Debug: stampare i primi 100 byte per vedere se sono completi
-        print(f"Serialized index length: {len(binary_indexes_bytes)}, Data: {binary_indexes_bytes[:100]}")
-    
         return binary_indexes_bytes
     
     def normal_indexes(self, binary_indexes_list):

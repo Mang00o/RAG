@@ -84,6 +84,9 @@ class DatabaseManager:
 
     # Method to save indexings to the database
     def save_indexings(self, document_names, binary_indexings):
+        print("\n Salvataggio indici binari")
+        print(f"Lunghezza inidic binari in classe salvataggio: {len(binary_indexings)}")  # Stampa i primi 100 byte
+        
         query = """
             INSERT INTO indexed_contents (embedded_content_id, dimension, index_algorithm, binary_indexing)
             VALUES (%s, %s, %s, %s)
@@ -100,6 +103,9 @@ class DatabaseManager:
             )
             for i in range(len(contents_ids))
         ]
+
+        print("\n Test dimensione indice")
+        print(contents_ids[0])
 
         self.__write_to_db(query, data, "Binary Indexing")
     

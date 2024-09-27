@@ -75,12 +75,15 @@ def main():
 
         # Creates an instance of the Indexing class
         indexing = Indexing(embedded_contents.shape[1])
+        print("\nIndici creati")
 
         # Add the document embeddings to the FAISS index for efficient similarity search
         contents_indexes = indexing.add(embedded_contents)
+        print("\n Embedding aggiunti a indici")
         
         binary_indexes_bytes = bi_converter.binary_indexes_bytes(contents_indexes)
-        print(f"Serialized index length: {len(binary_indexes_bytes)}, Data: {binary_indexes_bytes[:100]}")  # Stampa i primi 100 byte
+        print("\n Indici convertiti in binario in main")
+        print(f"Lunghezza inidic binari in main: {len(binary_indexes_bytes)}")  # Stampa i primi 100 byte
 
         db_manager.save_indexings(ingested_documents_names,binary_indexes_bytes)
     else:
