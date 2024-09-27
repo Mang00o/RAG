@@ -21,7 +21,7 @@ CREATE TABLE embedded_contents (
     tokenizer TINYTEXT,
     model TINYTEXT,
     normalizer TINYTEXT,
-    binary_embedding BLOB,
+    binary_embedding LONGBLOB,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_ingested_document FOREIGN KEY (ingested_document_id)
         REFERENCES ingested_documents(id)
@@ -36,7 +36,7 @@ CREATE TABLE indexed_contents (
     embedded_content_id INT,
     dimension INT,
     index_algorithm TINYTEXT,
-    binary_indexing BLOB,
+    binary_indexing LONGBLOB,
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_embedded_content FOREIGN KEY (embedded_content_id)
         REFERENCES embedded_contents(id)
