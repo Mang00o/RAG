@@ -28,18 +28,3 @@ CREATE TABLE embedded_contents (
         ON DELETE CASCADE
         ON UPDATE CASCADE
 );
-
--- Creazione della tabella 'indexed_contents' con chiave esterna verso 'embedded_contents'
-DROP TABLE IF EXISTS indexed_contents;
-CREATE TABLE indexed_contents (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    embedded_content_id INT,
-    dimension INT,
-    index_algorithm TINYTEXT,
-    binary_indexing LONGBLOB,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    CONSTRAINT fk_embedded_content FOREIGN KEY (embedded_content_id)
-        REFERENCES embedded_contents(id)
-        ON DELETE CASCADE
-        ON UPDATE CASCADE
-);
