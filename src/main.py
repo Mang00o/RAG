@@ -5,6 +5,7 @@ from embedding import Embedding
 from indexing import Indexing
 from retrieving import Retrieving
 from generating import Generating
+from database_manager import DatabaseManager
 
 def main():
     #########################################
@@ -15,6 +16,19 @@ def main():
     manage_warning()
 
     #########################################
+    #           PHASE 0 ~ DBING             #
+    #########################################
+
+    # Create a Retriving instance
+    db_manager = DatabaseManager()
+
+    # Connect to the database
+    db_manager.connect()
+
+    # Read documents names from the database
+    db_pdfs_names = db_manager.load_pdfs_names()
+
+    #########################################
     #           PHASE 1 ~ INGESTING         #
     #########################################
 
@@ -22,13 +36,13 @@ def main():
     directory = "documents"
 
     # Create a Retriving instance
-    ingesting = Ingesting(directory)
+    ingesting = Ingesting(directory, db_pdfs_names)
 
     # Extract text from pdf into the directory
-    pdf_texts, pdf_filenames = ingesting.extract_text_from_pdfs()
+    ingested_pdfs_names, ingested_pdfs_texts = ingesting.ingesting()
 
-    # Prints the names of the PDF documents from which it extracted the text
-    ingesting.print_loaded_documents()
+    # Save ingested documents on DB
+    db_manager.save_pdfs_ingestions(ingested_pdfs_names, ingested_pdfs_texts)
 
     print("\n-> Documents ingested successfully!")
     
@@ -36,11 +50,14 @@ def main():
     #           PHASE 2 ~ EMBEDDING         #
     #########################################
 
+    pdf_filenames = db_manager.load_pdfs_names()
+    pdf_texts = db_manager.load_documents_contents(pdf_filenames)
+    
     # Creates an instance of the Embedding class
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_text = embedding.embed_texts(pdf_texts)
+    embed_text = embedding.embedding(pdf_texts)
     
     print("\n-> Documents embedded successfully!")
     
