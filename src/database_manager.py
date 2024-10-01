@@ -56,7 +56,7 @@ class DatabaseManager:
             return  # Exit if lists are empty
         
         query = """
-            INSERT INTO ingested_documents (document_name, document_text)
+            INSERT INTO ingested_pdfs (pdf_name, pdf_text)
             VALUES (%s, %s)
         """
 
@@ -91,7 +91,7 @@ class DatabaseManager:
 
         # Create the SQL query using the IN clause to search for multiple filenames
         format_strings = ','.join(['%s'] * len(documents_ids))  # Create placeholders for the query
-        query = f"SELECT document_text FROM ingested_documents WHERE document_name IN ({format_strings})"
+        query = f"SELECT pdf_text FROM ingested_pdfs WHERE pdf_name IN ({format_strings})"
         
         # Execute the query with the list of document names
         self.cursor.execute(query, documents_names)
@@ -111,7 +111,7 @@ class DatabaseManager:
 
         # Create the SQL query using the IN clause to search for multiple document names
         format_strings = ','.join(['%s'] * len(document_names))  # Create placeholders for the query
-        query = f"SELECT id FROM ingested_documents WHERE document_name IN ({format_strings})"
+        query = f"SELECT id FROM ingested_pdfs WHERE pdf_name IN ({format_strings})"
         
         try:
             # Execute the query with the list of document names
