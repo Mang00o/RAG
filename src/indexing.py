@@ -1,12 +1,17 @@
 import faiss
 
+#####################################################################
+#   This class calculate the index from given contents embeddings   #
+#   And return the index                                            #
+#####################################################################
 class Indexing:
-    def __init__(self, embedding_dimension):
+    def __init__(self, embedded_contents):
+        self.embedded_contents = embedded_contents
         # Initialize a FAISS index using L2 (Euclidean) distance
-        self.indexes = faiss.IndexFlatL2(embedding_dimension)
+        self.index = faiss.IndexFlatL2(self.embedded_contents.shape[1])
 
-    def add(self, embedded_contents):
-        # Add the document embeddings to the FAISS index
-        self.indexes.add(embedded_contents)
-        return self.indexes
+    # Add the document embeddings to the FAISS index
+    def add(self):
+        self.index.add(self.embedded_contents)
+        return self.index
     
