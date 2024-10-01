@@ -9,7 +9,7 @@ class Embedding:
         self.model = AutoModel.from_pretrained("sentence-transformers/all-MiniLM-L6-v2")
 
     # Method for transforming document text into vectors and normalizing them
-    def embed_texts(self, texts):
+    def embedding(self, texts):
         inputs = self.tokenizer(texts, padding=True, truncation=True, return_tensors="pt")
         with torch.no_grad():
             embeddings = self.model(**inputs).last_hidden_state.mean(dim=1).numpy()
