@@ -1,20 +1,24 @@
 from prittier import frame_text
 from warning import manage_warning
 from database_manager import DatabaseManager
-from binary_converter import BinaryConverter
 from ingesting import Ingesting
+from relevanting import Relevanting
 from embedding import Embedding
+from binary_converter import BinaryConverter
 from indexing import Indexing
-from retrieving import Retrieving
-from generating import Generating
 
-def main():
+def main():   
     #########################################
     #                 BEGIN                 #
     #########################################
     frame_text('Start of script')
 
     manage_warning()
+
+    # Specify the directory where the PDFs are located
+    directory = "documents"
+
+    query = input("\n-> Enter the query to search for relevant documents: ")
 
     #########################################
     #           PHASE 0 ~ DBING             #
@@ -33,9 +37,6 @@ def main():
     #           PHASE 1 ~ INGESTING         #
     #########################################
 
-    # Specify the directory where the PDFs are located
-    directory = "documents"
-
     # Create a Retriving instance
     ingesting = Ingesting(directory, db_documents_names)
 
@@ -46,89 +47,64 @@ def main():
     db_manager.save_documents_ingestions(ingested_documents_names, ingested_documentes_texts)
 
     # Prints the names of the PDF documents from which it extracted the text
-    ingesting.print_ingested_documents()
+    #ingesting.print_ingested_documents()
 
+    #########################################
+    #           PHASE 2 ~ EMBEDDING         #
+    #########################################
+
+    # Creates an instance of the Embedding class
+    embedding = Embedding(ingested_documentes_texts)
+
+    # Pass document contents to get embeddings
+    embedded_contents = embedding.embedding()
+
+    # Creates an instance of the BinaryConverter class
+    bi_converter = BinaryConverter()
+
+    # Convertes the embeddings into binary 
+    binary_embeddings = bi_converter.binary_text(embedded_contents)
+
+    # Save binary embeddings in DB
+    db_manager.save_contents_embeddings(ingested_documents_names,binary_embeddings)
+
+    #############################################
+    #           PHASE 1.1 ~ RELEVANTING         #
+    #############################################
+
+    # All the documents in the directory
     documents_names = db_documents_names + ingested_documents_names
 
-    documents_texts = db_manager.load_documents_contents(db_documents_names) + ingested_documentes_texts
+    # Creates an instance of the Relevanting class
+    relevanting = Relevanting(query,documents_names)
 
-    bi_converter = BinaryConverter()
-    
-    if ingested_documents_names:
-        #########################################
-        #           PHASE 2 ~ EMBEDDING         #
-        #########################################
+    # The relevants pdfs names given the query
+    # todo deve restituirmi il nome dei documenti rilevanti, da qui in poi lavoriamo con quelli
+    relevant_pdfs_names = relevanting.get_relevant_pdfs_names() # !
 
-        # Creates an instance of the Embedding class
-        embedding = Embedding()
+    #########################################
+    #           PHASE 3 ~ INDEXING          #
+    #########################################
 
-        # Pass document contents to get embeddings
-        embedded_contents = embedding.embedding(ingested_documentes_texts)
+    # Creates an instance of the Indexing class
+    indexing = Indexing(embedded_contents) # TODO utilizza contenuto dei documenti rilevanti
 
-        binary_embeddings = bi_converter.binary_text(embedded_contents)
+    # Add the document embeddings to the FAISS index for efficient similarity search
+    contents_indexes = indexing.add()
 
-        db_manager.save_contents_embeddings(ingested_documents_names,binary_embeddings)
-        
-        #########################################
-        #           PHASE 3 ~ INDEXING          #
-        #########################################
-
-        # Creates an instance of the Indexing class
-        indexing = Indexing(embedded_contents.shape[1])
-        print("\nIndici creati")
-
-        # Add the document embeddings to the FAISS index for efficient similarity search
-        contents_indexes = indexing.add(embedded_contents)
-        print("\n Embedding aggiunti a indici")
-        
-        binary_indexes_bytes = bi_converter.binary_indexes_bytes(contents_indexes)
-        print("\n Indici convertiti in binario in main")
-        print(f"Lunghezza inidic binari in main: {len(binary_indexes_bytes)}")  # Stampa i primi 100 byte
-
-        db_manager.save_indexings(ingested_documents_names,binary_indexes_bytes)
-    else:
-        print("\n-> Embedding already saved")
-        print("\n-> Indexing already saved")
- 
     #########################################
     #           PHASE 4 ~ RETRIEVING        #
     #########################################
 
-    binary_indexes_bytes = db_manager.load_all_indices()
-    for i, index in enumerate(binary_indexes_bytes):
-        print(f"Index {i}, length: {len(index)} bytes")  # Controlla la lunghezza di ciascun indice recuperato
+    query_embedding = embedding(query)
 
-    indexes = bi_converter.normal_indexes(binary_indexes_bytes)
+    distances, indices = contents_indexes.search(query_embedding, min(3,len(relevant_pdfs_names))) #!
 
-    query = input("\n-> Enter the query to search for relevant documents: ")
-
-    embedded_query = embedding.embedding(query)
-
-    # Creates an instance of the Retrieving class
-    retrieving = Retrieving(documents_names, documents_texts, indexes, embedded_query)
-
-    # Perform a search for the top k most relevant documents based on the query embedding
-    retrieved_document = retrieving.search_documents()  
-
-    # Print the retrieved documents along with their distances
-    retrieving.print_relevant_documents(retrieved_document)
-
-    print("\n-> Documents retrieved successfully!")
+    retrieve = [(relevant_pdfs_names[i], distances[0][idx]) for idx, i in enumerate(indices[0])]  #!
 
     #########################################
     #           PHASE 5 ~ GENERATING        #
     #########################################
-    
-    # Create an instance of the Generating class with the PDF texts and filenames
-    generating = Generating(documents_texts, documents_names)
-
-    # Generate a response using the Ollama model based on the query and the search results
-    response = generating.generate_response_with_ollama(retrieving.embedded_query, retrieved_document)
-    
-    # Print the response generated by Ollama
-    generating.print_ollama_response(response)
-
-    print("\n-> Response generated successfully!")
 
     #########################################
     #           PHASE 6 ~ PROCESSING        #
@@ -145,4 +121,4 @@ def main():
     frame_text('End of the Script')
 
 if __name__ == "__main__":
-    main()
+    main()    
