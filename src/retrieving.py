@@ -16,7 +16,7 @@ class Retrieving:
     def search_documents(self, k=1):
         embedding = Embedding()
         
-        query_embedding = embedding.embed_texts([self.query])
+        query_embedding = embedding.embedding([self.query])
         
         # Search the FAISS index for the documents closest to the query embedding
         distances, indices = self.index.search(query_embedding, k)
