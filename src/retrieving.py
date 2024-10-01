@@ -1,6 +1,6 @@
-#
-#   This class retrieve the
-#
+#############################
+#   This class retrieve     #
+#############################
 class Retrieving:
     def __init__(self, documents_names, indexes, embedded_query):
         # Save document embeddings, file names, document texts, and FAISS indexes
