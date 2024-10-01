@@ -82,7 +82,7 @@ class DatabaseManager:
             self.conn.rollback()  # Rollback in case of error
 
     # Method to load the content of multiple documents based on their filenames in one query
-    def load_documents_contents(self, documents_names):
+    def load_documents_contents(self, documents_names): # todo serve documents_names? valutare refactor
         # If the document_names list is empty, return an empty list
         if not documents_names:
             return []
@@ -156,3 +156,20 @@ class DatabaseManager:
         ]
 
         self.__write_to_db(query, data, "Binary Embedding")
+
+    def load_binary_embeddings(self):
+        
+        # SQL query to select all binary_embedding from the embedded_contents table
+        query = "SELECT binary_embedding FROM embedded_contents"
+        
+        # Execute the query to retrieve the filenames
+        self.cursor.execute(query)
+        
+        # Fetch all rows from the query result
+        rows = self.cursor.fetchall()
+        
+        # Extract the binary_embedding from the rows and store them in a list
+        binary_embeddings = [row[0] for row in rows]
+        
+        # Return the list of document names
+        return binary_embeddings
