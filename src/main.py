@@ -72,6 +72,10 @@ def main():
     #           PHASE 3 ~ INDEXING          #
     #########################################
 
+    binary_embedding = db_manager.load_binary_embeddings()
+
+    embed_text = bi_converter.normal_list(binary_embedding)
+
     # Creates an instance of the Indexing class
     indexing = Indexing(embed_text.shape[1])
 
