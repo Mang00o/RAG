@@ -128,3 +128,31 @@ class DatabaseManager:
         except mysql.connector.Error as err:
             print(f"Error retrieving document IDs: {err}")
             return []
+        
+    # Method to save embeddings to the database
+    def save_contents_embeddings(self, ingested_documents_names, binary_contents_embeddings):
+        if not ingested_documents_names:
+            print("\n-> No embeddings to save.")
+            return  # Exit if lists are empty
+        
+        query = """
+            INSERT INTO embedded_contents (ingested_pdf_id, content_type, tokenizer, model, normalizer, binary_embedding)
+            VALUES (%s, %s, %s, %s, %s, %s)
+        """
+        
+        documents_ids = self.__get_ingested_documents_ids(ingested_documents_names)
+
+        # Prepare data for batch insert
+        data = [
+            (
+                documents_ids[i],           # loaded_document_id
+                "full_content",             # Type of content
+                "all-MiniLM-L6-v2",         # Name of the tokenizer
+                "sentence-transformers",    # Name of the model
+                "L2-normalization",         # Normalization used
+                binary_contents_embeddings[i]        # Binary embedding
+            )
+            for i in range(len(documents_ids))
+        ]
+
+        self.__write_to_db(query, data, "Binary Embedding")
