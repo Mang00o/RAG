@@ -6,7 +6,6 @@ from indexing import Indexing
 from retrieving import Retrieving
 from generating import Generating
 from database_manager import DatabaseManager
-from binary_converter import BinaryConverter
 
 def main():
     #########################################
@@ -58,13 +57,7 @@ def main():
     embedding = Embedding()
 
     # Pass document texts to get embeddings (e.g. from pdf_texts)
-    embed_text = embedding.embedding(pdf_texts) # todo: implementazione finale con ingested_pdfs_texts
-
-    bi_converter = BinaryConverter()
-
-    binary_embeddings = bi_converter.binary_text(embed_text)
-
-    db_manager.save_contents_embeddings(pdf_filenames, binary_embeddings) # todo: implementazione finale con ingested_pdfs_names
+    embed_text = embedding.embedding(pdf_texts)
     
     print("\n-> Documents embedded successfully!")
     
